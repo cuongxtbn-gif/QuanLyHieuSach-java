@@ -4,53 +4,78 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox spacing="18" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+<VBox spacing="30" style="-fx-background-color: transparent;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="org.example.AdminMaGiamGiaController">
-    <Label text="Quản lý mã giảm giá" styleClass="page-title"/>
 
-    <TableView fx:id="tblCoupons" prefHeight="260">
-        <columns>
-            <TableColumn fx:id="colCode" prefWidth="120" text="Mã"/>
-            <TableColumn fx:id="colDescription" prefWidth="220" text="Mô tả"/>
-            <TableColumn fx:id="colPercent" prefWidth="90" text="% giảm"/>
-            <TableColumn fx:id="colTargetUsers" prefWidth="170" text="Đối tượng"/>
-            <TableColumn fx:id="colConditions" prefWidth="220" text="Điều kiện áp dụng"/>
-            <TableColumn fx:id="colActive" prefWidth="90" text="Kích hoạt"/>
-        </columns>
-    </TableView>
-
-    <GridPane hgap="10" vgap="10">
-        <columnConstraints>
-            <ColumnConstraints percentWidth="50"/>
-            <ColumnConstraints percentWidth="50"/>
-        </columnConstraints>
-        <Label text="Mã giảm giá" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
-        <TextField fx:id="txtCode" promptText="VD: SPRING15" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
-
-        <Label text="Mô tả" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
-        <TextField fx:id="txtDescription" promptText="Mô tả ngắn" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
-
-        <Label text="% giảm" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
-        <TextField fx:id="txtPercent" promptText="VD: 15" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
-
-        <Label text="Đối tượng áp dụng" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
-        <TextField fx:id="txtTargetUsers" promptText="VD: Thành viên VIP" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
-
-        <Label text="Điều kiện áp dụng" GridPane.columnIndex="0" GridPane.rowIndex="4"/>
-        <TextArea fx:id="txtConditions" prefRowCount="3" promptText="VD: Đơn từ 300,000đ" GridPane.columnIndex="0" GridPane.rowIndex="5" GridPane.columnSpan="2"/>
-
-        <CheckBox fx:id="chkActive" text="Mã đang hoạt động" selected="true" GridPane.columnIndex="0" GridPane.rowIndex="6"/>
-    </GridPane>
-
-    <HBox spacing="10">
-        <Button text="Thêm mã" onAction="#handleAddCoupon" style="-fx-background-color: #27ae60; -fx-text-fill: white;"/>
-        <Button text="Sửa mã" onAction="#handleUpdateCoupon" style="-fx-background-color: #2980b9; -fx-text-fill: white;"/>
-        <Button text="Xóa mã" onAction="#handleDeleteCoupon" style="-fx-background-color: #c0392b; -fx-text-fill: white;"/>
+    <HBox alignment="CENTER_LEFT" style="-fx-background-color: white; -fx-padding: 20 30; -fx-border-radius: 10; -fx-background-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 4);">
+        <Label text="Quan ly Ma giam gia" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Label text="Admin: Quan tri vien toi cao" style="-fx-font-weight: bold; -fx-text-fill: #34495e;"/>
     </HBox>
 
-    <VBox styleClass="table-container">
-        <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
-        <Label text="Chi tiết mã giảm giá"/>
-        <Label fx:id="lblCouponDetail" text="Chọn mã giảm giá để xem chi tiết." wrapText="true"/>
+    <HBox spacing="20">
+        <VBox style="-fx-background-color: white; -fx-padding: 25; -fx-border-radius: 12; -fx-background-radius: 12; -fx-border-width: 0 0 4 0; -fx-border-color: #3498db; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 4);" HBox.hgrow="ALWAYS">
+            <Label text="TONG SO MA" style="-fx-text-fill: #7f8c8d; -fx-font-size: 14px; -fx-font-weight: bold;"/>
+            <Label fx:id="lblTotalCoupons" text="0" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #3498db; -fx-padding: 10 0 0 0;"/>
+        </VBox>
+        <VBox style="-fx-background-color: white; -fx-padding: 25; -fx-border-radius: 12; -fx-background-radius: 12; -fx-border-width: 0 0 4 0; -fx-border-color: #2ecc71; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 4);" HBox.hgrow="ALWAYS">
+            <Label text="MA DANG HOAT DONG" style="-fx-text-fill: #7f8c8d; -fx-font-size: 14px; -fx-font-weight: bold;"/>
+            <Label fx:id="lblActiveCoupons" text="0" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #2ecc71; -fx-padding: 10 0 0 0;"/>
+        </VBox>
+    </HBox>
+
+    <VBox spacing="15" style="-fx-background-color: white; -fx-padding: 25; -fx-border-radius: 12; -fx-background-radius: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 4);" VBox.vgrow="ALWAYS">
+        <Label text="Danh sach ma giam gia" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #2c3e50; -fx-border-width: 0 0 0 4; -fx-border-color: #f39c12; -fx-padding: 0 0 0 10;"/>
+        <TableView fx:id="tblCoupons" prefHeight="250">
+            <columns>
+                <TableColumn fx:id="colCode" prefWidth="140" text="Ma"/>
+                <TableColumn fx:id="colDescription" prefWidth="210" text="Mo ta"/>
+                <TableColumn fx:id="colPercent" prefWidth="120" text="Phan tram"/>
+                <TableColumn fx:id="colTargetUsers" prefWidth="180" text="Doi tuong"/>
+                <TableColumn fx:id="colConditions" prefWidth="230" text="Dieu kien ap dung"/>
+                <TableColumn fx:id="colActive" prefWidth="150" text="Trang thai"/>
+            </columns>
+        </TableView>
     </VBox>
+
+    <HBox spacing="20" VBox.vgrow="ALWAYS">
+        <VBox spacing="12" style="-fx-background-color: white; -fx-padding: 20; -fx-border-radius: 12; -fx-background-radius: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 4);" HBox.hgrow="ALWAYS">
+            <Label text="Thong tin ma giam gia" style="-fx-font-size: 17px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+            <GridPane hgap="12" vgap="10">
+                <columnConstraints>
+                    <ColumnConstraints percentWidth="50"/>
+                    <ColumnConstraints percentWidth="50"/>
+                </columnConstraints>
+
+                <Label text="Ma giam gia" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                <TextField fx:id="txtCode" promptText="VD: SPRING15" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+
+                <Label text="Mo ta" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+                <TextField fx:id="txtDescription" promptText="Mo ta ngan" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+
+                <Label text="Phan tram giam" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+                <TextField fx:id="txtPercent" promptText="VD: 15" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+
+                <Label text="Doi tuong ap dung" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+                <TextField fx:id="txtTargetUsers" promptText="VD: Thanh vien VIP" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+
+                <Label text="Dieu kien ap dung" GridPane.columnIndex="0" GridPane.rowIndex="4"/>
+                <TextArea fx:id="txtConditions" prefRowCount="3" promptText="VD: Don tu 300000d"
+                          GridPane.columnIndex="0" GridPane.rowIndex="5" GridPane.columnSpan="2"/>
+                <CheckBox fx:id="chkActive" text="Ma dang hoat dong" selected="true"
+                          GridPane.columnIndex="0" GridPane.rowIndex="6"/>
+            </GridPane>
+
+            <HBox spacing="10">
+                <Button text="Them ma" onAction="#handleAddCoupon" style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                <Button text="Cap nhat" onAction="#handleUpdateCoupon" style="-fx-background-color: #2980b9; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                <Button text="Xoa ma" onAction="#handleDeleteCoupon" style="-fx-background-color: #c0392b; -fx-text-fill: white; -fx-font-weight: bold;"/>
+            </HBox>
+        </VBox>
+
+        <VBox spacing="12" style="-fx-background-color: white; -fx-padding: 20; -fx-border-radius: 12; -fx-background-radius: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 4);" HBox.hgrow="ALWAYS">
+            <Label text="Chi tiet ma duoc chon" style="-fx-font-size: 17px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+            <Label fx:id="lblCouponDetail" text="Chon ma giam gia de xem chi tiet." wrapText="true" style="-fx-text-fill: #334155;"/>
+        </VBox>
+    </HBox>
 </VBox>

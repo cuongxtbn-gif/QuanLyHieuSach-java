@@ -1,78 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.geometry.Insets?>
 
-<!-- ĐÃ SỬA: Thêm stylesheets="@style.css" để nhúng file CSS làm đẹp của bạn -->
-<BorderPane fx:id="adminRoot" prefHeight="750.0" prefWidth="1100.0" stylesheets="@style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.SupplierController">
-
-    <!-- THANH MENU BÊN TRÁI (Lấy y hệt cấu trúc từ index-admin.fxml của bạn) -->
-    <left>
-        <VBox prefWidth="280" spacing="0" styleClass="sidebar">
-            <VBox alignment="CENTER" spacing="5" styleClass="sidebar-header">
-                <padding><Insets bottom="25" top="25" /></padding>
-                <Label styleClass="sidebar-logo" text="⚙️ ADMIN" />
-                <Label styleClass="sidebar-sub" text="HỆ THỐNG QUẢN TRỊ NỘI BỘ" />
-            </VBox>
-
-            <VBox spacing="8" VBox.vgrow="ALWAYS">
-                <padding><Insets left="15" right="15" top="20" /></padding>
-
-                <!-- ĐÃ SỬA: Thêm onAction="#moTrangThongKe" vào nút Thống kê -->
-                <Button onAction="#moTrangThongKe" maxWidth="Infinity" styleClass="admin-menu-btn" text="📊 Thống kê Doanh thu" />
-
-                <Button maxWidth="Infinity" styleClass="admin-menu-btn" text="📚 Quản lý Sách" />
-                <Button maxWidth="Infinity" styleClass="admin-menu-btn" text="📦 Duyệt Đơn hàng" />
-                <Button maxWidth="Infinity" styleClass="admin-menu-btn" text="🎟️ Quản lý Mã giảm giá" />
-                <Button maxWidth="Infinity" styleClass="admin-menu-btn, active-menu" text="👥 Nhà cung cấp" />
-
-                <Region VBox.vgrow="ALWAYS" />
-
-                <!-- Nút đăng xuất đã có sẵn onAction="#handleLogout" -->
-                <Button onAction="#handleLogout" maxWidth="Infinity" styleClass="admin-menu-btn, logout-btn" text="🚪 Đăng xuất hệ thống">
-                    <VBox.margin><Insets bottom="25" /></VBox.margin>
-                </Button>
-            </VBox>
-        </VBox>
-    </left>
-
-    <!-- KHU VỰC NỘI DUNG CHÍNH (Đã bọc trong StackPane để chứa được Modal) -->
-    <center>
-        <StackPane>
+<StackPane stylesheets="@style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.SupplierController">
             <!-- Lớp Content dưới cùng -->
             <ScrollPane fitToWidth="true" style="-fx-background-color: transparent;">
-                <VBox spacing="30" styleClass="main-content">
+                <VBox spacing="30" style="-fx-background-color: transparent;">
                     <padding><Insets bottom="40" left="40" right="40" top="40" /></padding>
 
-                    <!-- Header -->
-                    <HBox alignment="CENTER_LEFT" styleClass="page-header">
-                        <Label styleClass="page-title" text="Danh sách Nhà Phân Phối" />
+                    <!-- Header giống phong cách Thống Kê -->
+                    <HBox alignment="CENTER_LEFT" style="-fx-background-color: white; -fx-padding: 20 30; -fx-border-radius: 10; -fx-background-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 4);">
+                        <Label text="Danh sách Nhà Phân Phối" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
                         <Region HBox.hgrow="ALWAYS" />
                         <Label style="-fx-font-weight: bold; -fx-text-fill: #34495e;" text="👤 Admin: Quản trị viên tối cao" />
                     </HBox>
 
-                    <!-- Stats -->
-                    <GridPane hgap="20" vgap="20">
-                        <columnConstraints>
-                            <ColumnConstraints percentWidth="50" />
-                            <ColumnConstraints percentWidth="50" />
-                        </columnConstraints>
-
-                        <VBox styleClass="stat-card, blue-border" GridPane.columnIndex="0">
-                            <Label text="SỐ LƯỢNG ĐỐI TÁC" />
-                            <Label fx:id="lblTotalSuppliers" styleClass="stat-value" style="-fx-text-fill: #3498db;" text="0" />
+                    <!-- Stats Block thay cho GridPane cũ -->
+                    <HBox spacing="20">
+                        <!-- Thống kê 1 -->
+                        <VBox style="-fx-background-color: white; -fx-padding: 25; -fx-border-radius: 12; -fx-background-radius: 12; -fx-border-width: 0 0 4 0; -fx-border-color: #3498db; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 4);" HBox.hgrow="ALWAYS">
+                            <Label text="SỐ LƯỢNG ĐỐI TÁC" style="-fx-text-fill: #7f8c8d; -fx-font-size: 14px; -fx-font-weight: bold;"/>
+                            <Label fx:id="lblTotalSuppliers" text="0" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #3498db; -fx-padding: 10 0 0 0;"/>
                         </VBox>
-                        <VBox styleClass="stat-card, red-border" GridPane.columnIndex="1">
-                            <Label text="TỔNG GIÁ TRỊ GIAO DỊCH" />
-                            <Label fx:id="lblTotalAmount" styleClass="stat-value" style="-fx-text-fill: #e74c3c;" text="0 đ" />
-                        </VBox>
-                    </GridPane>
 
-                    <!-- Table Section -->
-                    <VBox spacing="15" styleClass="table-container">
+                        <!-- Thống kê 2 -->
+                        <VBox style="-fx-background-color: white; -fx-padding: 25; -fx-border-radius: 12; -fx-background-radius: 12; -fx-border-width: 0 0 4 0; -fx-border-color: #e74c3c; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 4);" HBox.hgrow="ALWAYS">
+                            <Label text="TỔNG GIÁ TRỊ GIAO DỊCH" style="-fx-text-fill: #7f8c8d; -fx-font-size: 14px; -fx-font-weight: bold;"/>
+                            <Label fx:id="lblTotalAmount" text="0 đ" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #e74c3c; -fx-padding: 10 0 0 0;"/>
+                        </VBox>
+                    </HBox>
+
+                    <!-- Table Section với Card style -->
+                    <VBox spacing="15" style="-fx-background-color: white; -fx-padding: 25; -fx-border-radius: 12; -fx-background-radius: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 4);" VBox.vgrow="ALWAYS">
                         <HBox alignment="CENTER_LEFT" spacing="15">
-                            <Label styleClass="section-heading" text="Danh sách chi tiết" />
+                            <Label text="Danh sách chi tiết" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #2c3e50; -fx-border-width: 0 0 0 4; -fx-border-color: #2ecc71; -fx-padding: 0 0 0 10;"/>
                             <Region HBox.hgrow="ALWAYS"/>
                             <TextField fx:id="txtSearch" promptText="🔍 Nhập mã hoặc tên NCC..." prefWidth="280" style="-fx-padding: 8 15; -fx-background-radius: 8; -fx-border-color: #cbd5e1; -fx-border-radius: 8; -fx-background-color: white;"/>
                             <Button text="+ Thêm mới" onAction="#showAddSupplierModal" style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 8 20; -fx-background-radius: 8; -fx-cursor: hand;"/>
@@ -93,7 +56,7 @@
                 </VBox>
             </ScrollPane>
 
-            <!-- ================= CÁC LỚP MODAL (LỚP ĐẬY) ================= -->
+            <!-- ================= CÁC LỚP MODAL (LỚP ĐẬY) ĐƯỢC GIỮ NGUYÊN ================= -->
 
             <!-- MODAL 1: THÊM / SỬA NCC -->
             <StackPane fx:id="modalSupplierForm" visible="false" style="-fx-background-color: rgba(0,0,0,0.6);">
@@ -189,6 +152,5 @@
                     </HBox>
                 </VBox>
             </StackPane>
-        </StackPane>
-    </center>
-</BorderPane>
+        
+</StackPane>

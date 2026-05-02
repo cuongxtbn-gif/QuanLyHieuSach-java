@@ -1,15 +1,5 @@
 package org.example;
 
-// CÁC THƯ VIỆN ĐÃ ĐƯỢC BỔ SUNG
-import javafx.event.ActionEvent;
-import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.stage.Stage;
-import javafx.fxml.FXMLLoader;
-import java.io.IOException;
-import java.util.Optional;
-
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -258,53 +248,6 @@ public class SupplierController {
     private void showAlert(String title, String content) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION, content);
         alert.setTitle(title); alert.setHeaderText(null); alert.show();
-    }
-
-    // =========================================================
-    // HÀM XỬ LÝ ĐĂNG XUẤT VÀ CHUYỂN TRANG
-    // =========================================================
-
-    @FXML
-    public void handleLogout(ActionEvent event) {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Xác nhận đăng xuất");
-        alert.setHeaderText(null);
-        alert.setContentText("Bạn có chắc chắn muốn đăng xuất khỏi hệ thống Quản trị?");
-
-        Optional<ButtonType> result = alert.showAndWait();
-        if (result.isPresent() && result.get() == ButtonType.OK) {
-            try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/dang-nhap.fxml"));
-                Parent root = loader.load();
-
-                Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-                stage.setScene(new Scene(root));
-                stage.setTitle("Đăng nhập - BOOKSTORE");
-
-                // Giữ nguyên tính năng đưa ra giữa màn hình khi logout
-                stage.centerOnScreen();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    @FXML
-    public void moTrangThongKe(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/index-admin.fxml"));
-            Parent root = loader.load();
-
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-
-            // ĐÃ SỬA: Dùng setRoot để giữ nguyên trạng thái Fullscreen
-            stage.getScene().setRoot(root);
-            stage.setTitle("Hệ thống Quản trị - BOOKSTORE");
-
-        } catch (IOException e) {
-            e.printStackTrace();
-            showAlert("Lỗi", "Không thể tải giao diện Thống kê!");
-        }
     }
 
     // =========================================================

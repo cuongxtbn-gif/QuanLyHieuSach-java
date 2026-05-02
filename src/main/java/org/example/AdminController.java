@@ -4,10 +4,6 @@ package org.example;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
-import javafx.event.ActionEvent;
-import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -16,6 +12,9 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Optional;
 
 public class AdminController {
@@ -32,7 +31,29 @@ public class AdminController {
     // Hàm dùng chung để nhúng file FXML khác vào ô bên phải
     private void loadSubPage(String fxmlFile) {
         try {
-            Parent root = FXMLLoader.load(getClass().getResource(fxmlFile));
+            URL resource = getClass().getResource(fxmlFile);
+            String normalized = fxmlFile.startsWith("/") ? fxmlFile.substring(1) : fxmlFile;
+
+            if (resource == null) {
+                resource = Thread.currentThread().getContextClassLoader().getResource(normalized);
+            }
+            if (resource == null) {
+                Path fromTarget = Path.of("target", "classes", normalized);
+                if (Files.exists(fromTarget)) {
+                    resource = fromTarget.toUri().toURL();
+                }
+            }
+            if (resource == null) {
+                Path fromSource = Path.of("src", "main", "resources", normalized);
+                if (Files.exists(fromSource)) {
+                    resource = fromSource.toUri().toURL();
+                }
+            }
+            if (resource == null) {
+                throw new IOException("Không tìm thấy file: " + fxmlFile + " (classpath + target/classes + src/main/resources)");
+            }
+
+            Parent root = FXMLLoader.load(resource);
             if (contentArea != null) {
                 contentArea.getChildren().setAll(root);
             }
@@ -40,7 +61,8 @@ public class AdminController {
             e.printStackTrace();
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setHeaderText(null);
-            alert.setContentText("Không thể mở trang: " + fxmlFile);
+            String reason = e.getMessage() == null ? "(không có chi tiết)" : e.getMessage();
+            alert.setContentText("Không thể mở trang: " + fxmlFile + "\nLý do: " + reason);
             alert.showAndWait();
         }
     }
@@ -58,7 +80,7 @@ public class AdminController {
     public void moTrangMaGiamGia() { loadSubPage("/admin-ma-giam-gia.fxml"); }
 
     @FXML
-    public void moTrangNhaCungCap() { loadSubPage("/admin-nha-cung-cap.fxml"); }
+    public void moTrangNhaCungCap() { loadSubPage("/nha-cung-cap.fxml"); }
 
     @FXML
     public void dangXuat(ActionEvent event) {
@@ -80,28 +102,6 @@ public class AdminController {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }
-    }
-
-    // Đoạn code xử lý chuyển trang sang Nhà Cung Cấp
-    @FXML
-    public void moTrangNhaCungCap(ActionEvent event) {
-        try {
-            // Tải file giao diện nha-cung-cap.fxml
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/nha-cung-cap.fxml"));
-            Parent root = loader.load();
-
-            // Lấy ra cái cửa sổ (Stage) hiện tại đang hiển thị
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-
-            // ĐÃ SỬA: Chỉ thay đổi lõi giao diện (root) để giữ nguyên kích thước cửa sổ hiện tại (Fullscreen)
-            stage.getScene().setRoot(root);
-            stage.setTitle("Hệ thống Quản trị - Nhà Phân Phối");
-
-            // Xóa bỏ dòng tạo Scene mới (1000, 700) và dòng stage.centerOnScreen() ở đây
-
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 }
