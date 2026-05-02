@@ -1,13 +1,18 @@
 package org.example;
 
+// CÁC DÒNG IMPORT ĐÃ ĐƯỢC BỔ SUNG ĐẦY ĐỦ
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
+
 import java.io.IOException;
 import java.util.Optional;
 
@@ -43,7 +48,8 @@ public class AdminController {
             }
         }
     }
-    // Đoạn code bạn đã thêm vào để xử lý chuyển trang:
+
+    // Đoạn code xử lý chuyển trang sang Nhà Cung Cấp
     @FXML
     public void moTrangNhaCungCap(ActionEvent event) {
         try {
