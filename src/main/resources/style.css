@@ -334,3 +334,20 @@
     -fx-border-width: 0 0 0 4;
     -fx-padding: 0 0 0 15;
 }
+
+/* Style cho cái bảng thông số */
+.detail-table {
+    -fx-border-color: #dee2e6;
+    -fx-border-width: 1 0 0 0; /* Chỉ kẻ đường gạch ngang ở trên mỗi hàng */
+}
+
+.table-row-label {
+    -fx-padding: 10;
+    -fx-background-color: #f8f9fa; /* Màu nền xám nhạt cho cột tiêu đề */
+    -fx-min-width: 150;
+    -fx-font-weight: bold;
+}
+
+.table-data-label {
+    -fx-padding: 10;
+}
