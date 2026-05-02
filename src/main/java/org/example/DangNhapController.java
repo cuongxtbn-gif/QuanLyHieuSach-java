@@ -30,7 +30,7 @@ public class DangNhapController {
 
         if (user.equalsIgnoreCase("admin") && pass.equals("12345678")) {
             hienThongBao(Alert.AlertType.INFORMATION, "Thành công", "Chào ADMIN!");
-            chuyenTrang("/admin-layout.fxml", "Hệ thống Quản trị - BOOKSTORE", user);
+            chuyenTrang("/index-admin.fxml", "Hệ thống Quản trị - BOOKSTORE", user);
         } else {
             hienThongBao(Alert.AlertType.INFORMATION, "Thành công", "Chào khách hàng: " + user);
             UserSession.setUsername(user);

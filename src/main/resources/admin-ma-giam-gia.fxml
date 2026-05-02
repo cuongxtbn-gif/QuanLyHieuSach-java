@@ -30,7 +30,7 @@
         <Label text="Thêm mã giảm giá mới" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
         <HBox spacing="10">
             <TextField fx:id="txtCode" promptText="Mã voucher (VD: SUMMER20)" HBox.hgrow="ALWAYS"/>
-            <TextField fx:id="txtDiscountPercent" promptText="% giảm" prefWidth="90"/>
+            <TextField fx:id="txtDiscountPercent" promptText="Phan tram giam" prefWidth="120"/>
             <TextField fx:id="txtQuantity" promptText="Số lượng" prefWidth="110"/>
             <CheckBox fx:id="chkActive" text="Kích hoạt" selected="true"/>
         </HBox>
@@ -50,7 +50,7 @@
         <TableView fx:id="tblActiveVouchers" prefHeight="230" VBox.vgrow="ALWAYS">
             <columns>
                 <TableColumn fx:id="colActiveCode" text="Mã" prefWidth="140"/>
-                <TableColumn fx:id="colActivePercent" text="% Giảm" prefWidth="90"/>
+                <TableColumn fx:id="colActivePercent" text="Phan tram giam" prefWidth="120"/>
                 <TableColumn fx:id="colActiveQty" text="Số lượng còn" prefWidth="120"/>
                 <TableColumn fx:id="colActiveTarget" text="Đối tượng" prefWidth="180"/>
                 <TableColumn fx:id="colActiveCondition" text="Điều kiện" prefWidth="360"/>
@@ -66,7 +66,7 @@
         <TableView fx:id="tblExpiredVouchers" prefHeight="230" VBox.vgrow="ALWAYS">
             <columns>
                 <TableColumn fx:id="colExpiredCode" text="Mã" prefWidth="140"/>
-                <TableColumn fx:id="colExpiredPercent" text="% Giảm" prefWidth="90"/>
+                <TableColumn fx:id="colExpiredPercent" text="Phan tram giam" prefWidth="120"/>
                 <TableColumn fx:id="colExpiredQty" text="Số lượng còn" prefWidth="120"/>
                 <TableColumn fx:id="colExpiredTarget" text="Đối tượng" prefWidth="180"/>
                 <TableColumn fx:id="colExpiredCondition" text="Điều kiện" prefWidth="360"/>

@@ -26,16 +26,23 @@ public class AdminController {
     }
 
     // Hàm dùng chung để nhúng file FXML khác vào ô bên phải
-    private void loadSubPage(String fxmlFile) {
+    private boolean loadSubPage(String fxmlFile) {
         if (contentArea == null) {
-            return;
+            return false;
         }
         try {
-            Parent root = FXMLLoader.load(getClass().getResource(fxmlFile));
+            java.net.URL resource = getClass().getResource(fxmlFile);
+            if (resource == null) {
+                showError("Không tìm thấy file giao diện: " + fxmlFile);
+                return false;
+            }
+            Parent root = FXMLLoader.load(resource);
             contentArea.getChildren().setAll(root);
+            return true;
         } catch (IOException e) {
             e.printStackTrace();
-            System.out.println("Lỗi không tải được trang: " + fxmlFile);
+            showError("Lỗi không tải được trang: " + fxmlFile + "\n" + e.getMessage());
+            return false;
         }
     }
 
@@ -79,26 +86,52 @@ public class AdminController {
         }
     }
     @FXML
-    private void goToVoucher(ActionEvent event) {
-        try {
-            // Load thẳng file FXML của trang mã giảm giá
-            Parent voucherRoot = FXMLLoader.load(getClass().getResource("/admin-ma-giam-gia.fxml"));
-
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(new Scene(voucherRoot));
-            stage.setTitle("Quản lý Mã giảm giá - BOOKSTORE");
-            stage.centerOnScreen();
-        } catch (IOException e) {
-            e.printStackTrace();
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Lỗi");
-            alert.setContentText("Không thể mở file fxml: " + e.getMessage());
-            alert.show();
+    private void goToOrderManagement(ActionEvent event) {
+        if (!loadSubPage("/admin-don-hang.fxml")) {
+            openAsStandalone(event, "/admin-don-hang.fxml", "Quản lý Đơn hàng - BOOKSTORE");
         }
+    }
+
+    @FXML
+    private void goToDiscountManagement(ActionEvent event) {
+        if (!loadSubPage("/admin-ma-giam-gia.fxml")) {
+            openAsStandalone(event, "/admin-ma-giam-gia.fxml", "Quản lý Mã giảm giá - BOOKSTORE");
+        }
+    }
+
+    @FXML
+    private void goToVoucher(ActionEvent event) {
+        goToDiscountManagement(event);
     }
 
     @FXML
     private void handleLogout(ActionEvent event) {
         dangXuat(event);
+    }
+
+    private void openAsStandalone(ActionEvent event, String fxmlFile, String title) {
+        try {
+            java.net.URL resource = getClass().getResource(fxmlFile);
+            if (resource == null) {
+                showError("Không tìm thấy file giao diện: " + fxmlFile);
+                return;
+            }
+            Parent root = FXMLLoader.load(resource);
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.setTitle(title);
+            stage.centerOnScreen();
+        } catch (IOException e) {
+            e.printStackTrace();
+            showError("Không thể mở giao diện: " + fxmlFile + "\n" + e.getMessage());
+        }
+    }
+
+    private void showError(String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Lỗi điều hướng");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 }
