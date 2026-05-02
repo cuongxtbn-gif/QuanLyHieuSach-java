@@ -5,7 +5,12 @@ public class UserSession {
     private static String currentUsername = null;
 
     public static void setUsername(String username) {
-        currentUsername = username;
+        if (username == null) {
+            currentUsername = null;
+            return;
+        }
+        String t = username.trim();
+        currentUsername = t.isEmpty() ? null : t;
     }
 
     public static String getUsername() {

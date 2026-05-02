@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.chart.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox spacing="30" style="-fx-background-color: transparent;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.AdminThongKeController">
+
+    <!-- Tiêu đề trang -->
+    <HBox alignment="CENTER_LEFT" style="-fx-background-color: white; -fx-padding: 20 30; -fx-border-radius: 10; -fx-background-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 4);">
+        <Label text="Báo cáo Tổng quan &amp; Thống kê" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Label text="👤 Admin: Quản trị viên tối cao" style="-fx-font-weight: bold; -fx-text-fill: #34495e;"/>
+    </HBox>
+
+    <!-- Khối Thống kê -->
+    <HBox spacing="20">
+        <!-- Tổng doanh thu -->
+        <VBox style="-fx-background-color: white; -fx-padding: 25; -fx-border-radius: 12; -fx-background-radius: 12; -fx-border-width: 0 0 4 0; -fx-border-color: #3498db; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 4);" HBox.hgrow="ALWAYS">
+            <Label text="TỔNG DOANH THU" style="-fx-text-fill: #7f8c8d; -fx-font-size: 14px; -fx-font-weight: bold;"/>
+            <Label fx:id="lblDoanhThu" text="45,200,000 đ" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #3498db; -fx-padding: 10 0 0 0;"/>
+        </VBox>
+
+        <!-- Đơn chờ duyệt -->
+        <VBox style="-fx-background-color: white; -fx-padding: 25; -fx-border-radius: 12; -fx-background-radius: 12; -fx-border-width: 0 0 4 0; -fx-border-color: #2ecc71; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 4);" HBox.hgrow="ALWAYS">
+            <Label text="ĐƠN CHỜ DUYỆT" style="-fx-text-fill: #7f8c8d; -fx-font-size: 14px; -fx-font-weight: bold;"/>
+            <Label fx:id="lblDonCho" text="18" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #2ecc71; -fx-padding: 10 0 0 0;"/>
+        </VBox>
+
+        <VBox style="-fx-background-color: white; -fx-padding: 25; -fx-border-radius: 12; -fx-background-radius: 12; -fx-border-width: 0 0 4 0; -fx-border-color: #f39c12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 4);" HBox.hgrow="ALWAYS">
+            <Label text="ĐƠN ĐÃ DUYỆT" style="-fx-text-fill: #7f8c8d; -fx-font-size: 14px; -fx-font-weight: bold;"/>
+            <Label fx:id="lblDonDaDuyet" text="0" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #f39c12; -fx-padding: 10 0 0 0;"/>
+        </VBox>
+    </HBox>
+
+    <HBox spacing="20" VBox.vgrow="ALWAYS">
+        <VBox spacing="15" style="-fx-background-color: white; -fx-padding: 25; -fx-border-radius: 12; -fx-background-radius: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 4);" HBox.hgrow="ALWAYS">
+            <Label text="Toàn bộ đơn hàng đã đặt" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #2c3e50; -fx-border-width: 0 0 0 4; -fx-border-color: #f39c12; -fx-padding: 0 0 0 10;"/>
+            <TableView fx:id="tblAllOrders" VBox.vgrow="ALWAYS">
+                <columns>
+                    <TableColumn fx:id="colOrderId" text="Mã Đơn" prefWidth="130"/>
+                    <TableColumn fx:id="colOrderDate" text="Ngày Đặt" prefWidth="110"/>
+                    <TableColumn fx:id="colOrderCustomer" text="Khách Hàng" prefWidth="140"/>
+                    <TableColumn fx:id="colOrderItems" text="Sản phẩm" prefWidth="270"/>
+                    <TableColumn fx:id="colOrderTotal" text="Tổng Tiền" prefWidth="120"/>
+                    <TableColumn fx:id="colOrderStatus" text="Trạng Thái" prefWidth="110"/>
+                </columns>
+            </TableView>
+            <Label fx:id="lblTongDoanhThuTatCa" text="Tổng doanh thu: 0 đ" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+        </VBox>
+
+        <VBox spacing="15" style="-fx-background-color: white; -fx-padding: 25; -fx-border-radius: 12; -fx-background-radius: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 4);" HBox.hgrow="ALWAYS">
+            <Label text="Biểu đồ doanh thu theo ngày / thể loại" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #2c3e50; -fx-border-width: 0 0 0 4; -fx-border-color: #3498db; -fx-padding: 0 0 0 10;"/>
+            <BarChart fx:id="chartRevenueByTypePerDay" categoryGap="12" legendVisible="true" VBox.vgrow="ALWAYS">
+                <xAxis>
+                    <CategoryAxis label="Ngày"/>
+                </xAxis>
+                <yAxis>
+                    <NumberAxis label="Doanh thu (đ)"/>
+                </yAxis>
+            </BarChart>
+        </VBox>
+    </HBox>
+</VBox>

@@ -2,8 +2,11 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
 
 <BorderPane prefHeight="768.0" prefWidth="1366.0" stylesheets="@style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.AdminController">
+
+    <!-- THANH MENU BÊN TRÁI (SIDEBAR) -->
     <left>
         <VBox prefWidth="280.0" style="-fx-background-color: linear-gradient(to bottom, #2c3e50, #1a252f);">
             <VBox alignment="CENTER" spacing="5" style="-fx-padding: 25 20 20 20; -fx-border-color: transparent transparent rgba(255,255,255,0.1) transparent; -fx-border-width: 0 0 1 0;">
@@ -11,13 +14,6 @@
                 <Label text="Hệ thống quản trị nội bộ" style="-fx-font-size: 12px; -fx-text-fill: #bdc3c7;"/>
             </VBox>
 
-            <VBox spacing="8" VBox.vgrow="ALWAYS">
-                <padding><Insets left="15" right="15" top="20" /></padding>
-                <Button maxWidth="Infinity" styleClass="admin-menu-btn, active-menu" text="📊 Thống kê Doanh thu" />
-                <Button maxWidth="Infinity" styleClass="admin-menu-btn" text="📚 Quản lý Sách" />
-                <Button maxWidth="Infinity" styleClass="admin-menu-btn" text="📦 Duyệt Đơn hàng" />
-                <Button maxWidth="Infinity" styleClass="admin-menu-btn" text="🎟️ Quản lý Mã giảm giá" />
-                <Button onAction="#moTrangNhaCungCap" maxWidth="Infinity" styleClass="admin-menu-btn" text="👥 Nhà cung cấp" />
             <VBox spacing="10" style="-fx-padding: 20 15 0 15;">
                 <Button text="📊 Thống kê Doanh thu" onAction="#moTrangThongKe" styleClass="admin-btn" maxWidth="Infinity" alignment="BASELINE_LEFT"/>
                 <Button text="📚 Quản lý Sách" onAction="#moTrangQuanLySach" styleClass="admin-btn" maxWidth="Infinity" alignment="BASELINE_LEFT"/>
@@ -34,7 +30,9 @@
         </VBox>
     </left>
 
+    <!-- KHU VỰC NỘI DUNG BÊN PHẢI SẼ THAY ĐỔI -->
     <center>
         <StackPane fx:id="contentArea" style="-fx-background-color: #f4f7f6; -fx-padding: 30;"/>
     </center>
+
 </BorderPane>
