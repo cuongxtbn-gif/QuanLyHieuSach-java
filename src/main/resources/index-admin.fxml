@@ -21,7 +21,7 @@
                 <Button maxWidth="Infinity" styleClass="admin-menu-btn" text="📚 Quản lý Sách" />
                 <Button maxWidth="Infinity" styleClass="admin-menu-btn" text="📦 Duyệt Đơn hàng" />
                 <Button maxWidth="Infinity" styleClass="admin-menu-btn" text="🎟️ Quản lý Mã giảm giá" />
-                <Button maxWidth="Infinity" styleClass="admin-menu-btn" text="👥 Nhà cung cấp" />
+                <Button onAction="#moTrangNhaCungCap" maxWidth="Infinity" styleClass="admin-menu-btn" text="👥 Nhà cung cấp" />
 
                 <Region VBox.vgrow="ALWAYS" />
 

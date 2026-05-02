@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<!-- ĐÃ SỬA: Thêm stylesheets="@style.css" để nhúng file CSS làm đẹp của bạn -->
+<BorderPane fx:id="adminRoot" prefHeight="750.0" prefWidth="1100.0" stylesheets="@style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.SupplierController">
+
+    <!-- THANH MENU BÊN TRÁI (Lấy y hệt cấu trúc từ index-admin.fxml của bạn) -->
+    <left>
+        <VBox prefWidth="280" spacing="0" styleClass="sidebar">
+            <VBox alignment="CENTER" spacing="5" styleClass="sidebar-header">
+                <padding><Insets bottom="25" top="25" /></padding>
+                <Label styleClass="sidebar-logo" text="⚙️ ADMIN" />
+                <Label styleClass="sidebar-sub" text="HỆ THỐNG QUẢN TRỊ NỘI BỘ" />
+            </VBox>
+
+            <VBox spacing="8" VBox.vgrow="ALWAYS">
+                <padding><Insets left="15" right="15" top="20" /></padding>
+                <!-- Lưu ý: Dời class active-menu xuống nút Nhà cung cấp -->
+                <Button maxWidth="Infinity" styleClass="admin-menu-btn" text="📊 Thống kê Doanh thu" />
+                <Button maxWidth="Infinity" styleClass="admin-menu-btn" text="📚 Quản lý Sách" />
+                <Button maxWidth="Infinity" styleClass="admin-menu-btn" text="📦 Duyệt Đơn hàng" />
+                <Button maxWidth="Infinity" styleClass="admin-menu-btn" text="🎟️ Quản lý Mã giảm giá" />
+                <Button maxWidth="Infinity" styleClass="admin-menu-btn, active-menu" text="👥 Nhà cung cấp" />
+
+                <Region VBox.vgrow="ALWAYS" />
+
+                <Button onAction="#handleLogout" maxWidth="Infinity" styleClass="admin-menu-btn, logout-btn" text="🚪 Đăng xuất hệ thống">
+                    <VBox.margin><Insets bottom="25" /></VBox.margin>
+                </Button>
+            </VBox>
+        </VBox>
+    </left>
+
+    <!-- KHU VỰC NỘI DUNG CHÍNH (Đã bọc trong StackPane để chứa được Modal) -->
+    <center>
+        <StackPane>
+            <!-- Lớp Content dưới cùng -->
+            <ScrollPane fitToWidth="true" style="-fx-background-color: transparent;">
+                <VBox spacing="30" styleClass="main-content">
+                    <padding><Insets bottom="40" left="40" right="40" top="40" /></padding>
+
+                    <!-- Header -->
+                    <HBox alignment="CENTER_LEFT" styleClass="page-header">
+                        <Label styleClass="page-title" text="Danh sách Nhà Phân Phối" />
+                        <Region HBox.hgrow="ALWAYS" />
+                        <Label style="-fx-font-weight: bold; -fx-text-fill: #34495e;" text="👤 Admin: Quản trị viên tối cao" />
+                    </HBox>
+
+                    <!-- Stats -->
+                    <GridPane hgap="20" vgap="20">
+                        <columnConstraints>
+                            <ColumnConstraints percentWidth="50" />
+                            <ColumnConstraints percentWidth="50" />
+                        </columnConstraints>
+
+                        <VBox styleClass="stat-card, blue-border" GridPane.columnIndex="0">
+                            <Label text="SỐ LƯỢNG ĐỐI TÁC" />
+                            <Label fx:id="lblTotalSuppliers" styleClass="stat-value" style="-fx-text-fill: #3498db;" text="0" />
+                        </VBox>
+                        <VBox styleClass="stat-card, red-border" GridPane.columnIndex="1">
+                            <Label text="TỔNG GIÁ TRỊ GIAO DỊCH" />
+                            <Label fx:id="lblTotalAmount" styleClass="stat-value" style="-fx-text-fill: #e74c3c;" text="0 đ" />
+                        </VBox>
+                    </GridPane>
+
+                    <!-- Table Section -->
+                    <VBox spacing="15" styleClass="table-container">
+                        <HBox alignment="CENTER_LEFT" spacing="15">
+                            <Label styleClass="section-heading" text="Danh sách chi tiết" />
+                            <Region HBox.hgrow="ALWAYS"/>
+                            <TextField fx:id="txtSearch" promptText="🔍 Nhập mã hoặc tên NCC..." prefWidth="280" style="-fx-padding: 8 15; -fx-background-radius: 8; -fx-border-color: #cbd5e1; -fx-border-radius: 8; -fx-background-color: white;"/>
+                            <Button text="+ Thêm mới" onAction="#showAddSupplierModal" style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 8 20; -fx-background-radius: 8; -fx-cursor: hand;"/>
+                        </HBox>
+
+                        <TableView fx:id="tableSuppliers" VBox.vgrow="ALWAYS" prefHeight="400">
+                            <columns>
+                                <TableColumn fx:id="colId" text="Mã NCC" prefWidth="100"/>
+                                <TableColumn fx:id="colName" text="Tên Nhà Phân Phối" prefWidth="200"/>
+                                <TableColumn fx:id="colPhone" text="Số Điện Thoại" prefWidth="150"/>
+                                <TableColumn fx:id="colEmail" text="Email" prefWidth="200"/>
+                                <TableColumn fx:id="colTotal" text="Tổng Tiền Đã Nhập" prefWidth="150"/>
+                                <TableColumn fx:id="colStatus" text="Trạng Thái" prefWidth="120"/>
+                                <TableColumn fx:id="colActions" text="Thao Tác" prefWidth="250"/>
+                            </columns>
+                        </TableView>
+                    </VBox>
+                </VBox>
+            </ScrollPane>
+
+            <!-- ================= CÁC LỚP MODAL (LỚP ĐẬY) ================= -->
+
+            <!-- MODAL 1: THÊM / SỬA NCC -->
+            <StackPane fx:id="modalSupplierForm" visible="false" style="-fx-background-color: rgba(0,0,0,0.6);">
+                <VBox maxHeight="-Infinity" maxWidth="-Infinity" prefWidth="450" spacing="15" style="-fx-background-color: white; -fx-padding: 30; -fx-background-radius: 12;">
+                    <HBox alignment="CENTER_RIGHT"><Button text="✕" onAction="#closeModals" style="-fx-background-color: transparent; -fx-font-size: 18px; -fx-text-fill: #94a3b8; -fx-cursor: hand;"/></HBox>
+                    <Label fx:id="lblModalFormTitle" text="Thêm Nhà Phân Phối" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #2c3e50; -fx-alignment: center;" maxWidth="Infinity"/>
+                    <VBox spacing="5"><Label text="Mã NCC (*)" style="-fx-font-weight: bold;"/><TextField fx:id="txtModalId" style="-fx-padding: 10;"/></VBox>
+                    <VBox spacing="5"><Label text="Tên Nhà Phân Phối (*)" style="-fx-font-weight: bold;"/><TextField fx:id="txtModalName" style="-fx-padding: 10;"/></VBox>
+                    <VBox spacing="5"><Label text="Số Điện Thoại" style="-fx-font-weight: bold;"/><TextField fx:id="txtModalPhone" style="-fx-padding: 10;"/></VBox>
+                    <VBox spacing="5"><Label text="Email" style="-fx-font-weight: bold;"/><TextField fx:id="txtModalEmail" style="-fx-padding: 10;"/></VBox>
+                    <VBox spacing="5">
+                        <Label text="Trạng Thái" style="-fx-font-weight: bold;"/>
+                        <TextField fx:id="txtModalStatus" promptText="Đang hợp tác / Tạm dừng" text="Đang hợp tác" style="-fx-padding: 10;"/>
+                    </VBox>
+                    <Button text="LƯU THÔNG TIN" onAction="#saveSupplier" maxWidth="Infinity" style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 12; -fx-background-radius: 8; -fx-margin-top: 10; -fx-cursor: hand;"/>
+                </VBox>
+            </StackPane>
+
+            <!-- MODAL 2: DANH SÁCH HÓA ĐƠN CỦA 1 NCC -->
+            <StackPane fx:id="modalInvoiceList" visible="false" style="-fx-background-color: rgba(0,0,0,0.6);">
+                <VBox maxHeight="-Infinity" maxWidth="-Infinity" prefWidth="850" prefHeight="500" spacing="15" style="-fx-background-color: white; -fx-padding: 30; -fx-background-radius: 12;">
+                    <HBox alignment="CENTER_RIGHT"><Button text="✕" onAction="#closeModals" style="-fx-background-color: transparent; -fx-font-size: 18px; -fx-text-fill: #94a3b8; -fx-cursor: hand;"/></HBox>
+                    <HBox alignment="CENTER_LEFT" spacing="15">
+                        <Label fx:id="lblModalInvoiceTitle" text="Danh Sách Hóa Đơn Nhập" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Button text="🛒 + Tạo Đơn Nhập Hàng" onAction="#showAddInvoiceModal" style="-fx-background-color: #e67e22; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 8 20; -fx-background-radius: 8; -fx-cursor: hand;"/>
+                    </HBox>
+                    <TableView fx:id="tableInvoices" VBox.vgrow="ALWAYS">
+                        <columns>
+                            <TableColumn fx:id="colInvId" text="Mã Hóa Đơn" prefWidth="150"/>
+                            <TableColumn fx:id="colInvDate" text="Ngày Nhập" prefWidth="150"/>
+                            <TableColumn fx:id="colInvCount" text="Số Lượng Đầu Sách" prefWidth="150"/>
+                            <TableColumn fx:id="colInvTotal" text="Tổng Tiền (VNĐ)" prefWidth="200"/>
+                            <TableColumn fx:id="colInvAction" text="Chi Tiết" prefWidth="150"/>
+                        </columns>
+                    </TableView>
+                </VBox>
+            </StackPane>
+
+            <!-- MODAL 3: CHI TIẾT HÓA ĐƠN -->
+            <StackPane fx:id="modalInvoiceDetail" visible="false" style="-fx-background-color: rgba(0,0,0,0.6);">
+                <VBox maxHeight="-Infinity" maxWidth="-Infinity" prefWidth="850" prefHeight="500" spacing="15" style="-fx-background-color: white; -fx-padding: 30; -fx-background-radius: 12;">
+                    <HBox alignment="CENTER_RIGHT"><Button text="✕" onAction="#closeDetailModal" style="-fx-background-color: transparent; -fx-font-size: 18px; -fx-text-fill: #94a3b8; -fx-cursor: hand;"/></HBox>
+                    <Label fx:id="lblDetailTitle" text="Chi tiết Hóa Đơn" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+                    <TableView fx:id="tableInvoiceDetail" VBox.vgrow="ALWAYS">
+                        <columns>
+                            <TableColumn fx:id="colDetId" text="Mã Sách" prefWidth="150"/>
+                            <TableColumn fx:id="colDetTitle" text="Tên Sách" prefWidth="300"/>
+                            <TableColumn fx:id="colDetPrice" text="Đơn Giá Nhập" prefWidth="150"/>
+                            <TableColumn fx:id="colDetQty" text="Số Lượng" prefWidth="80"/>
+                            <TableColumn fx:id="colDetTotal" text="Thành Tiền" prefWidth="150"/>
+                        </columns>
+                    </TableView>
+                    <Label fx:id="lblDetailTotal" text="Tổng cộng: 0 đ" alignment="CENTER_RIGHT" maxWidth="Infinity" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #e74c3c;"/>
+                </VBox>
+            </StackPane>
+
+            <!-- MODAL 4: TẠO ĐƠN NHẬP KHO (GIỎ HÀNG) -->
+            <StackPane fx:id="modalAddInvoice" visible="false" style="-fx-background-color: rgba(0,0,0,0.6);">
+                <VBox maxHeight="-Infinity" maxWidth="-Infinity" prefWidth="900" prefHeight="600" spacing="15" style="-fx-background-color: white; -fx-padding: 30; -fx-background-radius: 12;">
+                    <HBox alignment="CENTER_RIGHT"><Button text="✕" onAction="#closeAddInvoiceModal" style="-fx-background-color: transparent; -fx-font-size: 18px; -fx-text-fill: #94a3b8; -fx-cursor: hand;"/></HBox>
+                    <Label text="Tạo Đơn Nhập Kho" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #2c3e50; -fx-alignment: center;" maxWidth="Infinity"/>
+
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label text="Ngày Nhập:" style="-fx-font-weight: bold;"/>
+                        <DatePicker fx:id="dpInvoiceDate" prefWidth="150"/>
+                    </HBox>
+
+                    <VBox spacing="10" style="-fx-background-color: #f8f9fa; -fx-padding: 15; -fx-background-radius: 8; -fx-border-color: #e2e8f0; -fx-border-width: 1;">
+                        <Label text="Chọn sách vào đơn hàng:" style="-fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <ComboBox fx:id="cbBookSelect" prefWidth="550" promptText="-- Chọn sách --"/>
+                            <TextField fx:id="txtBookQty" prefWidth="100" promptText="Số lượng" text="10"/>
+                            <Button text="Thêm ⬇️" onAction="#addToCart" style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 5 15; -fx-cursor: hand;"/>
+                        </HBox>
+                    </VBox>
+
+                    <TableView fx:id="tableCart" VBox.vgrow="ALWAYS">
+                        <columns>
+                            <TableColumn fx:id="colCartTitle" text="Tên Sách" prefWidth="350"/>
+                            <TableColumn fx:id="colCartPrice" text="Đơn Giá Nhập" prefWidth="150"/>
+                            <TableColumn fx:id="colCartQty" text="Số Lượng" prefWidth="80"/>
+                            <TableColumn fx:id="colCartTotal" text="Thành Tiền" prefWidth="150"/>
+                            <TableColumn fx:id="colCartAction" text="Xóa" prefWidth="80"/>
+                        </columns>
+                    </TableView>
+
+                    <HBox alignment="CENTER_RIGHT" spacing="20">
+                        <Label text="Tổng Tiền:" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #e74c3c;"/>
+                        <Label fx:id="lblCartTotal" text="0 đ" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #e74c3c;"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Button text="XÁC NHẬN NHẬP KHO" onAction="#saveNewInvoice" style="-fx-background-color: #e67e22; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 30; -fx-background-radius: 8; -fx-cursor: hand;"/>
+                    </HBox>
+                </VBox>
+            </StackPane>
+        </StackPane>
+    </center>
+</BorderPane>

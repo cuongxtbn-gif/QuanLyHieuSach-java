@@ -43,4 +43,24 @@ public class AdminController {
             }
         }
     }
+    // Đoạn code bạn đã thêm vào để xử lý chuyển trang:
+    @FXML
+    public void moTrangNhaCungCap(ActionEvent event) {
+        try {
+            // Tải file giao diện nha-cung-cap.fxml
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/nha-cung-cap.fxml"));
+            Parent root = loader.load();
+
+            // Lấy ra cái cửa sổ (Stage) hiện tại đang hiển thị
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+
+            // Nhét giao diện Nhà cung cấp vào cửa sổ đó
+            Scene scene = new Scene(root, 1000, 700);
+            stage.setTitle("Hệ thống Quản trị - Nhà Phân Phối");
+            stage.setScene(scene);
+            stage.centerOnScreen();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }
