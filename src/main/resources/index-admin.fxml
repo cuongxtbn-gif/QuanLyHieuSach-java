@@ -2,92 +2,32 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.geometry.Insets?>
 
-<BorderPane fx:id="adminRoot" prefHeight="750.0" prefWidth="1100.0" stylesheets="@style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.AdminController">
-
-    <!-- THANH MENU BÊN TRÁI (SIDEBAR) -->
+<BorderPane prefHeight="768.0" prefWidth="1366.0" stylesheets="@style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.AdminController">
     <left>
-        <VBox prefWidth="280" spacing="0" styleClass="sidebar">
-            <VBox alignment="CENTER" spacing="5" styleClass="sidebar-header">
-                <padding><Insets bottom="25" top="25" /></padding>
-                <Label styleClass="sidebar-logo" text="⚙️ ADMIN" />
-                <Label styleClass="sidebar-sub" text="HỆ THỐNG QUẢN TRỊ NỘI BỘ" />
+        <VBox prefWidth="280.0" style="-fx-background-color: linear-gradient(to bottom, #2c3e50, #1a252f);">
+            <VBox alignment="CENTER" spacing="5" style="-fx-padding: 25 20 20 20; -fx-border-color: transparent transparent rgba(255,255,255,0.1) transparent; -fx-border-width: 0 0 1 0;">
+                <Label text="⚙️ ADMIN" style="-fx-font-size: 28px; -fx-text-fill: #f39c12; -fx-font-weight: bold;"/>
+                <Label text="Hệ thống quản trị nội bộ" style="-fx-font-size: 12px; -fx-text-fill: #bdc3c7;"/>
             </VBox>
 
-            <VBox spacing="8" VBox.vgrow="ALWAYS">
-                <padding><Insets left="15" right="15" top="20" /></padding>
-                <Button maxWidth="Infinity" styleClass="admin-menu-btn, active-menu" text="📊 Thống kê Doanh thu" />
-                <Button maxWidth="Infinity" styleClass="admin-menu-btn" text="📚 Quản lý Sách" />
-                <Button maxWidth="Infinity" styleClass="admin-menu-btn" text="📦 Duyệt Đơn hàng" />
-                <Button maxWidth="Infinity" styleClass="admin-menu-btn" text="🎟️ Quản lý Mã giảm giá" />
-                <Button maxWidth="Infinity" styleClass="admin-menu-btn" text="👥 Nhà cung cấp" />
+            <VBox spacing="10" style="-fx-padding: 20 15 0 15;">
+                <Button text="📊 Thống kê Doanh thu" onAction="#moTrangThongKe" styleClass="admin-btn" maxWidth="Infinity" alignment="BASELINE_LEFT"/>
+                <Button text="📚 Quản lý Sách" onAction="#moTrangQuanLySach" styleClass="admin-btn" maxWidth="Infinity" alignment="BASELINE_LEFT"/>
+                <Button text="📦 Quản lý Đơn hàng" onAction="#moTrangDonHang" styleClass="admin-btn" maxWidth="Infinity" alignment="BASELINE_LEFT"/>
+                <Button text="🎟️ Mã giảm giá" onAction="#moTrangMaGiamGia" styleClass="admin-btn" maxWidth="Infinity" alignment="BASELINE_LEFT"/>
+                <Button text="👥 Nhà phân phối" onAction="#moTrangNhaCungCap" styleClass="admin-btn" maxWidth="Infinity" alignment="BASELINE_LEFT"/>
+            </VBox>
 
-                <Region VBox.vgrow="ALWAYS" />
+            <Region VBox.vgrow="ALWAYS" />
 
-                <!-- Nút Đăng xuất kết nối với hàm handleLogout -->
-                <Button onAction="#handleLogout" maxWidth="Infinity" styleClass="admin-menu-btn, logout-btn" text="🚪 Đăng xuất hệ thống">
-                    <VBox.margin><Insets bottom="25" /></VBox.margin>
-                </Button>
+            <VBox style="-fx-padding: 20 15 30 15;">
+                <Button text="🚪 Đăng xuất hệ thống" onAction="#dangXuat" style="-fx-background-color: rgba(231, 76, 60, 0.2); -fx-text-fill: #e74c3c; -fx-border-color: rgba(231, 76, 60, 0.5); -fx-border-radius: 8;" maxWidth="Infinity" alignment="BASELINE_LEFT"/>
             </VBox>
         </VBox>
     </left>
 
-    <!-- KHU VỰC NỘI DUNG CHÍNH -->
     <center>
-        <ScrollPane fitToWidth="true" style="-fx-background-color: transparent;">
-            <VBox spacing="30" styleClass="main-content">
-                <padding><Insets bottom="40" left="40" right="40" top="40" /></padding>
-
-                <!-- Page Header -->
-                <HBox alignment="CENTER_LEFT" styleClass="page-header">
-                    <Label styleClass="page-title" text="Báo cáo Tổng quan &amp; Thống kê" />
-                    <Region HBox.hgrow="ALWAYS" />
-                    <Label style="-fx-font-weight: bold; -fx-text-fill: #34495e;" text="👤 Admin: Quản trị viên tối cao" />
-                </HBox>
-
-                <!-- Các thẻ thống kê (Stat Cards) -->
-                <GridPane hgap="20" vgap="20">
-                    <columnConstraints>
-                        <ColumnConstraints percentWidth="25" />
-                        <ColumnConstraints percentWidth="25" />
-                        <ColumnConstraints percentWidth="25" />
-                        <ColumnConstraints percentWidth="25" />
-                    </columnConstraints>
-
-                    <VBox styleClass="stat-card, blue-border" GridPane.columnIndex="0">
-                        <Label text="TỔNG DOANH THU (THÁNG)" />
-                        <Label fx:id="lblTotalRevenue" styleClass="stat-value" style="-fx-text-fill: #3498db;" text="45.200.000đ" />
-                    </VBox>
-                    <VBox styleClass="stat-card, green-border" GridPane.columnIndex="1">
-                        <Label text="ĐƠN HÀNG CHỜ DUYỆT" />
-                        <Label fx:id="lblPendingOrders" styleClass="stat-value" style="-fx-text-fill: #2ecc71;" text="18" />
-                    </VBox>
-                    <VBox styleClass="stat-card, yellow-border" GridPane.columnIndex="2">
-                        <Label text="KHÁCH HÀNG MỚI" />
-                        <Label styleClass="stat-value" style="-fx-text-fill: #f1c40f;" text="125" />
-                    </VBox>
-                    <VBox styleClass="stat-card, red-border" GridPane.columnIndex="3">
-                        <Label text="MÃ GIẢM GIÁ ĐANG CHẠY" />
-                        <Label styleClass="stat-value" style="-fx-text-fill: #e74c3c;" text="03" />
-                    </VBox>
-                </GridPane>
-
-                <!-- Bảng hiển thị Đơn hàng -->
-                <VBox spacing="15" styleClass="table-container">
-                    <Label styleClass="section-heading" text="Đơn hàng mới chờ duyệt" />
-                    <TableView fx:id="adminOrderTable" prefHeight="400">
-                        <columns>
-                            <TableColumn prefWidth="100" text="Mã Đơn" />
-                            <TableColumn prefWidth="120" text="Ngày Đặt" />
-                            <TableColumn prefWidth="180" text="Khách Hàng" />
-                            <TableColumn prefWidth="130" text="Tổng Tiền" />
-                            <TableColumn prefWidth="130" text="Trạng Thái" />
-                            <TableColumn prefWidth="140" text="Hành Động" />
-                        </columns>
-                    </TableView>
-                </VBox>
-            </VBox>
-        </ScrollPane>
+        <StackPane fx:id="contentArea" style="-fx-background-color: #f4f7f6; -fx-padding: 30;"/>
     </center>
 </BorderPane>

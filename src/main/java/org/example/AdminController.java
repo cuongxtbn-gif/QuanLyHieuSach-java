@@ -28,10 +28,15 @@ public class AdminController {
     private void loadSubPage(String fxmlFile) {
         try {
             Parent root = FXMLLoader.load(getClass().getResource(fxmlFile));
-            contentArea.getChildren().setAll(root);
-        } catch (IOException e) {
+            if (contentArea != null) {
+                contentArea.getChildren().setAll(root);
+            }
+        } catch (Exception e) {
             e.printStackTrace();
-            System.out.println("Lỗi không tải được trang: " + fxmlFile);
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setHeaderText(null);
+            alert.setContentText("Không thể mở trang: " + fxmlFile);
+            alert.showAndWait();
         }
     }
 

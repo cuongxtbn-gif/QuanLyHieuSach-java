@@ -1,5 +1,6 @@
 package org.example;
 
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -31,18 +32,33 @@ public class AdminMaGiamGiaController {
 
     @FXML
     public void initialize() {
-        coupons = CustomerAccountStore.getCoupons();
+        try {
+            coupons = CustomerAccountStore.getCoupons();
+            if (coupons == null) {
+                coupons = FXCollections.observableArrayList();
+            }
 
-        colCode.setCellValueFactory(cell -> cell.getValue().codeProperty());
-        colDescription.setCellValueFactory(cell -> cell.getValue().descriptionProperty());
-        colPercent.setCellValueFactory(cell -> cell.getValue().discountPercentProperty());
-        colTargetUsers.setCellValueFactory(cell -> cell.getValue().targetUsersProperty());
-        colConditions.setCellValueFactory(cell -> cell.getValue().conditionsProperty());
-        colActive.setCellValueFactory(cell -> cell.getValue().activeProperty());
+            colCode.setCellValueFactory(cell -> cell.getValue().codeProperty());
+            colDescription.setCellValueFactory(cell -> cell.getValue().descriptionProperty());
+            colPercent.setCellValueFactory(cell -> cell.getValue().discountPercentProperty());
+            colTargetUsers.setCellValueFactory(cell -> cell.getValue().targetUsersProperty());
+            colConditions.setCellValueFactory(cell -> cell.getValue().conditionsProperty());
+            colActive.setCellValueFactory(cell -> cell.getValue().activeProperty());
 
-        tblCoupons.setItems(coupons);
-        tblCoupons.getSelectionModel().selectedItemProperty()
-                .addListener((obs, oldItem, newItem) -> fillForm(newItem));
+            tblCoupons.setItems(coupons);
+            tblCoupons.getSelectionModel().selectedItemProperty()
+                    .addListener((obs, oldItem, newItem) -> fillForm(newItem));
+            lblCouponDetail.setText("Chọn mã giảm giá để xem chi tiết.");
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            coupons = FXCollections.observableArrayList();
+            if (tblCoupons != null) {
+                tblCoupons.setItems(coupons);
+            }
+            if (lblCouponDetail != null) {
+                lblCouponDetail.setText("Không đọc được dữ liệu mã giảm giá cũ. Bạn vẫn có thể tạo mã mới.");
+            }
+        }
     }
 
     @FXML
