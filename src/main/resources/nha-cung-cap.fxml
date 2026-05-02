@@ -18,8 +18,10 @@
 
             <VBox spacing="8" VBox.vgrow="ALWAYS">
                 <padding><Insets left="15" right="15" top="20" /></padding>
-                <!-- Lưu ý: Dời class active-menu xuống nút Nhà cung cấp -->
-                <Button maxWidth="Infinity" styleClass="admin-menu-btn" text="📊 Thống kê Doanh thu" />
+
+                <!-- ĐÃ SỬA: Thêm onAction="#moTrangThongKe" vào nút Thống kê -->
+                <Button onAction="#moTrangThongKe" maxWidth="Infinity" styleClass="admin-menu-btn" text="📊 Thống kê Doanh thu" />
+
                 <Button maxWidth="Infinity" styleClass="admin-menu-btn" text="📚 Quản lý Sách" />
                 <Button maxWidth="Infinity" styleClass="admin-menu-btn" text="📦 Duyệt Đơn hàng" />
                 <Button maxWidth="Infinity" styleClass="admin-menu-btn" text="🎟️ Quản lý Mã giảm giá" />
@@ -27,6 +29,7 @@
 
                 <Region VBox.vgrow="ALWAYS" />
 
+                <!-- Nút đăng xuất đã có sẵn onAction="#handleLogout" -->
                 <Button onAction="#handleLogout" maxWidth="Infinity" styleClass="admin-menu-btn, logout-btn" text="🚪 Đăng xuất hệ thống">
                     <VBox.margin><Insets bottom="25" /></VBox.margin>
                 </Button>

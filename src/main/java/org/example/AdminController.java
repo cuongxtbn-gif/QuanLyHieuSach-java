@@ -42,6 +42,8 @@ public class AdminController {
                 Stage stage = (Stage) adminRoot.getScene().getWindow();
                 stage.setScene(loginScene);
                 stage.setTitle("Đăng nhập - BOOKSTORE");
+
+                // Khi đăng xuất thì thu nhỏ lại và đưa ra giữa màn hình là chuẩn nhất
                 stage.centerOnScreen();
             } catch (IOException e) {
                 e.printStackTrace();
@@ -60,11 +62,12 @@ public class AdminController {
             // Lấy ra cái cửa sổ (Stage) hiện tại đang hiển thị
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
 
-            // Nhét giao diện Nhà cung cấp vào cửa sổ đó
-            Scene scene = new Scene(root, 1000, 700);
+            // ĐÃ SỬA: Chỉ thay đổi lõi giao diện (root) để giữ nguyên kích thước cửa sổ hiện tại (Fullscreen)
+            stage.getScene().setRoot(root);
             stage.setTitle("Hệ thống Quản trị - Nhà Phân Phối");
-            stage.setScene(scene);
-            stage.centerOnScreen();
+
+            // Xóa bỏ dòng tạo Scene mới (1000, 700) và dòng stage.centerOnScreen() ở đây
+
         } catch (IOException e) {
             e.printStackTrace();
         }
