@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<!-- Thẻ gốc StackPane để có thể đè giao diện Modal lên trên -->
+
+<StackPane fx:id="rootPane" stylesheets="@style.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="org.example.CartController">
+
+    <!-- LỚP DƯỚI: GIAO DIỆN CHÍNH CỦA TRANG -->
+    <ScrollPane fitToWidth="true" style="-fx-background-color: #f3f4f6;">
+        <VBox spacing="20" style="-fx-background-color: #f3f4f6;">
+            <padding>
+                <Insets top="0" right="20" bottom="20" left="20"/>
+            </padding>
+
+            <!-- ================= HEADER ================= -->
+            <HBox alignment="CENTER_LEFT" style="-fx-background-color: #2c3e50; -fx-padding: 15 30;">
+
+                <!-- Logo -->
+                <Label text="🐵 BOOKSTORE" textFill="#f39c12">
+                    <font><Font name="System Bold" size="28"/></font>
+                </Label>
+
+                <!-- Khoảng trống Region này sẽ đẩy toàn bộ khối Menu sang mép phải -->
+                <Region HBox.hgrow="ALWAYS" />
+
+                <!-- KHỐI BÊN PHẢI: Search Bar và Menu nằm chung -->
+                <HBox spacing="25" alignment="CENTER">
+
+                    <!-- Thanh tìm kiếm dài, bo tròn, có hiệu ứng viền phát sáng cam -->
+                    <TextField fx:id="searchField" prefWidth="450"
+                               style="-fx-background-radius: 20; -fx-padding: 8 20; -fx-font-size: 14px; -fx-effect: dropshadow(gaussian, rgba(243,156,18,0.7), 10, 0, 0, 0);"/>
+
+                    <!-- Các nút Menu -->
+                    <Hyperlink text="Trang chủ" onAction="#quayVeTrangChu" style="-fx-text-fill: white; -fx-font-size: 16px; -fx-underline: false;"/>
+
+                    <Hyperlink text="Sách" onAction="#moTrangDanhSachSach" style="-fx-text-fill: white; -fx-font-size: 16px; -fx-underline: false;"/>
+
+                    <!-- Đang ở Giỏ Hàng nên chữ này màu Cam -->
+                    <Hyperlink text="Giỏ hàng" style="-fx-text-fill: #f39c12; -fx-font-weight: bold; -fx-font-size: 16px; -fx-underline: false;"/>
+
+                    <!-- Tài khoản (Sẽ tự động hiển thị email khi đăng nhập) -->
+                    <Hyperlink fx:id="linkLogin" text="👤 Đăng nhập" onAction="#handleLoginClick" style="-fx-text-fill: white; -fx-font-size: 16px; -fx-underline: false;"/>
+
+                </HBox>
+            </HBox>
+
+            <!-- ================= GIỎ HÀNG ================= -->
+            <VBox spacing="10" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 8;">
+                <Label text="Giỏ Hàng">
+                    <font><Font name="System Bold" size="24"/></font>
+                </Label>
+                <Hyperlink text="← Trở về trang chủ" style="-fx-text-fill: #2563eb;"/>
+
+                <!-- Bảng Giỏ Hàng -->
+                <TableView fx:id="cartTable" prefHeight="300" VBox.vgrow="ALWAYS">
+                    <columns>
+                        <TableColumn fx:id="colSelect" text="Chọn" prefWidth="50" />
+                        <TableColumn fx:id="colProduct" text="Sản phẩm" prefWidth="300" />
+                        <TableColumn fx:id="colPrice" text="Đơn giá" prefWidth="120" />
+                        <TableColumn fx:id="colQuantity" text="Số lượng" prefWidth="120" />
+                        <TableColumn fx:id="colTotal" text="Thành tiền" prefWidth="120" />
+                        <TableColumn fx:id="colAction" text="Thao tác" prefWidth="80" />
+                    </columns>
+                </TableView>
+
+                <!-- VOUCHER CONTAINER -->
+                <HBox fx:id="voucherContainer" alignment="CENTER_LEFT" spacing="10" style="-fx-background-color: #fff3e0; -fx-border-color: #e67e22; -fx-border-style: dashed; -fx-border-radius: 8; -fx-background-radius: 8; -fx-padding: 15;">
+                    <Label text="🎟️ Ưu đãi dành cho bạn: Giảm 8% cho đơn hàng này (Chỉ dùng 1 lần)" textFill="#d35400">
+                        <font><Font name="System Bold" size="14"/></font>
+                    </Label>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Button fx:id="btnApplyVoucher" text="Áp dụng" style="-fx-background-color: #e67e22; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;"/>
+                </HBox>
+
+                <!-- CHECKOUT BAR -->
+                <HBox alignment="CENTER_LEFT" spacing="20" style="-fx-background-color: #f8fafc; -fx-padding: 15; -fx-border-color: #e5e7eb; -fx-border-radius: 8;">
+                    <CheckBox fx:id="checkSelectAllBottom" text="Chọn tất cả"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Label fx:id="lblTotalPrice" text="Tổng thanh toán (0 sản phẩm): 0đ">
+                        <font><Font name="System Bold" size="16"/></font>
+                    </Label>
+                    <Button fx:id="btnShowCheckout" text="Đặt hàng" style="-fx-background-color: #e11d48; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20; -fx-cursor: hand;"/>
+                </HBox>
+            </VBox>
+
+            <!-- ================= LỊCH SỬ ĐƠN HÀNG ================= -->
+            <VBox spacing="10" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 8;">
+                <Label text="📦 Theo dõi đơn hàng của bạn" textFill="#2c3e50">
+                    <font><Font name="System Bold" size="20"/></font>
+                </Label>
+
+                <TableView fx:id="trackingTable" prefHeight="200" VBox.vgrow="ALWAYS">
+                    <columns>
+                        <TableColumn fx:id="colOrderId" text="Mã đơn" prefWidth="130" />
+                        <TableColumn fx:id="colOrderDate" text="Ngày" prefWidth="100" />
+                        <TableColumn fx:id="colOrderMonth" text="Tháng/Năm" prefWidth="100" />
+                        <TableColumn fx:id="colOrderTime" text="Giờ" prefWidth="90" />
+                        <TableColumn fx:id="colOrderTotal" text="Tổng tiền" prefWidth="120" />
+                        <TableColumn fx:id="colStatus" text="Trạng thái" prefWidth="120" />
+                    </columns>
+                </TableView>
+            </VBox>
+
+        </VBox>
+    </ScrollPane>
+
+    <!-- LỚP TRÊN CÙNG: MODAL THANH TOÁN (MẶC ĐỊNH ẨN) -->
+    <VBox fx:id="modalOverlay" alignment="CENTER" visible="false" style="-fx-background-color: rgba(0,0,0,0.5);">
+        <!-- Hộp thoại Modal -->
+        <VBox spacing="15" maxWidth="500" style="-fx-background-color: white; -fx-padding: 30; -fx-background-radius: 10;">
+
+            <HBox alignment="CENTER_RIGHT">
+                <Button fx:id="btnCloseModal" text="✕" style="-fx-background-color: transparent; -fx-font-size: 16; -fx-cursor: hand;"/>
+            </HBox>
+
+            <Label text="Thông Tin Đặt Hàng" alignment="CENTER" maxWidth="Infinity">
+                <font><Font name="System Bold" size="22"/></font>
+            </Label>
+
+            <Label fx:id="lblModalTotal" text="Tổng tiền: 0đ" alignment="CENTER" maxWidth="Infinity" textFill="#e11d48" style="-fx-border-color: transparent transparent #eee transparent; -fx-border-width: 1; -fx-padding: 0 0 10 0;">
+                <font><Font name="System Bold" size="18"/></font>
+            </Label>
+
+            <!-- Form điền thông tin -->
+            <VBox spacing="5">
+                <Label text="Họ và tên người nhận (*):"/>
+                <TextField fx:id="txtName" promptText="Nhập họ tên..."/>
+            </VBox>
+
+            <VBox spacing="5">
+                <Label text="Số điện thoại (*):"/>
+                <TextField fx:id="txtPhone" promptText="Ví dụ: 0912345678..."/>
+            </VBox>
+
+            <VBox spacing="5">
+                <Label text="Địa chỉ giao hàng (*):"/>
+                <TextArea fx:id="txtAddress" promptText="Số nhà, Tên đường, Phường/Xã..." prefRowCount="3" wrapText="true"/>
+            </VBox>
+
+            <Label text="Phương thức thanh toán:" style="-fx-font-weight: bold;"/>
+            <HBox spacing="20">
+                <RadioButton fx:id="radioCOD" text="Thanh toán trực tiếp" selected="true"/>
+                <RadioButton fx:id="radioQR" text="Quét mã QR"/>
+            </HBox>
+
+            <!-- Vùng hiển thị mã QR (Sẽ ẩn nếu chọn COD) -->
+            <VBox fx:id="qrArea" alignment="CENTER" visible="false" managed="false" style="-fx-border-color: #ddd; -fx-padding: 20; -fx-background-color: #fafafa;">
+                <Label text="[ HÌNH ẢNH MÃ QR Ở ĐÂY ]" textFill="#888"/>
+            </VBox>
+
+            <Button fx:id="btnConfirmOrder" text="Xác Nhận Đặt Hàng" maxWidth="Infinity" style="-fx-background-color: #10b981; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 12; -fx-font-size: 16; -fx-cursor: hand;"/>
+        </VBox>
+    </VBox>
+</StackPane>

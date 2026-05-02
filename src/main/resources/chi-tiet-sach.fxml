@@ -16,7 +16,7 @@
                 <HBox alignment="CENTER" spacing="15">
                     <Hyperlink onAction="#quayVeTrangChu" text="Trang chủ" styleClass="nav-link"/>
                     <Hyperlink onAction="#quayVeDanhSach" text="Sách" styleClass="nav-link"/>
-                    <Hyperlink text="Giỏ hàng" styleClass="nav-link"/>
+                    <Hyperlink text="Giỏ hàng" onAction="#moTrangGioHang" styleClass="nav-link"/>
                     <Hyperlink fx:id="linkAccount" text="Tài khoản" styleClass="nav-link"/>
                 </HBox>
             </HBox>
@@ -49,10 +49,31 @@
 
                         <HBox spacing="15" alignment="CENTER_LEFT">
                             <Label text="Số lượng:"/>
-                            <TextField text="1" prefWidth="50" alignment="CENTER"/>
-                            <Button text="Thêm vào giỏ hàng" style="-fx-border-color: #3498db; -fx-text-fill: #3498db; -fx-background-color: white;"/>
-                            <Button text="Mua ngay" style="-fx-background-color: #e74c3c; -fx-text-fill: white;"/>
+                            <TextField fx:id="txtSoLuong" text="1" prefWidth="60" alignment="CENTER"/>
+                            <Button fx:id="btnThemGio" text="Thêm vào giỏ hàng" onAction="#themVaoGioHang" style="-fx-border-color: #3498db; -fx-text-fill: #3498db; -fx-background-color: white; -fx-cursor: hand;"/>
+                            <Button fx:id="btnMuaNgay" text="Mua ngay" onAction="#onMuaNgay" style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-cursor: hand;"/>
                         </HBox>
+
+                        <!-- Form đặt hàng nhanh (hiện khi bấm Mua ngay) -->
+                        <VBox fx:id="vboxQuickCheckout" spacing="10" visible="false" managed="false" style="-fx-padding: 18; -fx-background-color: #f8fafc; -fx-background-radius: 8; -fx-border-color: #e2e8f0; -fx-border-radius: 8;">
+                            <Label text="Thông tin giao hàng" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #1e293b;"/>
+                            <Label text="Họ và tên người nhận *" style="-fx-text-fill: #64748b;"/>
+                            <TextField fx:id="txtShipName" promptText="Nhập họ tên..."/>
+                            <Label text="Số điện thoại *" style="-fx-text-fill: #64748b;"/>
+                            <TextField fx:id="txtShipPhone" promptText="Ví dụ: 0912345678"/>
+                            <Label text="Địa chỉ giao hàng *" style="-fx-text-fill: #64748b;"/>
+                            <TextArea fx:id="txtShipAddress" promptText="Số nhà, đường, phường/xã..." prefRowCount="3" wrapText="true"/>
+                            <HBox spacing="12">
+                                <Button text="Hủy" onAction="#huyMuaNgay" style="-fx-background-color: #e2e8f0; -fx-cursor: hand;"/>
+                                <Button fx:id="btnConfirmBuyNow" text="Xác nhận đặt hàng" onAction="#xacNhanMuaNgay" style="-fx-background-color: #10b981; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;"/>
+                            </HBox>
+                        </VBox>
+
+                        <!-- Biên lai đơn hàng vừa đặt -->
+                        <VBox fx:id="vboxOrderPlaced" spacing="8" visible="false" managed="false" style="-fx-padding: 18; -fx-background-color: #ecfdf5; -fx-background-radius: 8; -fx-border-color: #10b981; -fx-border-radius: 8;">
+                            <Label text="Đơn hàng của bạn" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #047857;"/>
+                            <Label fx:id="lblOrderReceipt" wrapText="true" style="-fx-font-size: 13px; -fx-text-fill: #065f46;"/>
+                        </VBox>
                     </VBox>
                 </HBox>
 
