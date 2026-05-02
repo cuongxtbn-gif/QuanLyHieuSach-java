@@ -4,41 +4,44 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox spacing="30" style="-fx-background-color: transparent;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="org.example.AdminMaGiamGiaController">
+<StackPane style="-fx-background-color: transparent;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="org.example.AdminMaGiamGiaController">
+    <ScrollPane fitToWidth="true" style="-fx-background-color: transparent;">
+        <VBox spacing="30" style="-fx-background-color: transparent;">
+            <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
 
-    <HBox alignment="CENTER_LEFT" style="-fx-background-color: white; -fx-padding: 20 30; -fx-border-radius: 10; -fx-background-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 4);">
-        <Label text="Quan ly Ma giam gia" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
-        <Region HBox.hgrow="ALWAYS"/>
-        <Label text="Admin: Quan tri vien toi cao" style="-fx-font-weight: bold; -fx-text-fill: #34495e;"/>
-    </HBox>
+            <HBox alignment="CENTER_LEFT" style="-fx-background-color: white; -fx-padding: 20 30; -fx-border-radius: 10; -fx-background-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 4);">
+                <Label text="Quan ly Ma giam gia" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Label text="Admin: Quan tri vien toi cao" style="-fx-font-weight: bold; -fx-text-fill: #34495e;"/>
+            </HBox>
 
-    <HBox spacing="20">
-        <VBox style="-fx-background-color: white; -fx-padding: 25; -fx-border-radius: 12; -fx-background-radius: 12; -fx-border-width: 0 0 4 0; -fx-border-color: #3498db; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 4);" HBox.hgrow="ALWAYS">
-            <Label text="TONG SO MA" style="-fx-text-fill: #7f8c8d; -fx-font-size: 14px; -fx-font-weight: bold;"/>
-            <Label fx:id="lblTotalCoupons" text="0" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #3498db; -fx-padding: 10 0 0 0;"/>
-        </VBox>
-        <VBox style="-fx-background-color: white; -fx-padding: 25; -fx-border-radius: 12; -fx-background-radius: 12; -fx-border-width: 0 0 4 0; -fx-border-color: #2ecc71; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 4);" HBox.hgrow="ALWAYS">
-            <Label text="MA DANG HOAT DONG" style="-fx-text-fill: #7f8c8d; -fx-font-size: 14px; -fx-font-weight: bold;"/>
-            <Label fx:id="lblActiveCoupons" text="0" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #2ecc71; -fx-padding: 10 0 0 0;"/>
-        </VBox>
-    </HBox>
+            <HBox spacing="20">
+                <VBox style="-fx-background-color: white; -fx-padding: 25; -fx-border-radius: 12; -fx-background-radius: 12; -fx-border-width: 0 0 4 0; -fx-border-color: #3498db; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 4);" HBox.hgrow="ALWAYS">
+                    <Label text="TONG SO MA" style="-fx-text-fill: #7f8c8d; -fx-font-size: 14px; -fx-font-weight: bold;"/>
+                    <Label fx:id="lblTotalCoupons" text="0" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #3498db; -fx-padding: 10 0 0 0;"/>
+                </VBox>
+                <VBox style="-fx-background-color: white; -fx-padding: 25; -fx-border-radius: 12; -fx-background-radius: 12; -fx-border-width: 0 0 4 0; -fx-border-color: #2ecc71; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 4);" HBox.hgrow="ALWAYS">
+                    <Label text="MA DANG HOAT DONG" style="-fx-text-fill: #7f8c8d; -fx-font-size: 14px; -fx-font-weight: bold;"/>
+                    <Label fx:id="lblActiveCoupons" text="0" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #2ecc71; -fx-padding: 10 0 0 0;"/>
+                </VBox>
+            </HBox>
 
-    <VBox spacing="15" style="-fx-background-color: white; -fx-padding: 25; -fx-border-radius: 12; -fx-background-radius: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 4);" VBox.vgrow="ALWAYS">
-        <Label text="Danh sach ma giam gia" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #2c3e50; -fx-border-width: 0 0 0 4; -fx-border-color: #f39c12; -fx-padding: 0 0 0 10;"/>
-        <TableView fx:id="tblCoupons" prefHeight="250">
-            <columns>
-                <TableColumn fx:id="colCode" prefWidth="140" text="Ma"/>
-                <TableColumn fx:id="colDescription" prefWidth="210" text="Mo ta"/>
-                <TableColumn fx:id="colPercent" prefWidth="120" text="Phan tram"/>
-                <TableColumn fx:id="colTargetUsers" prefWidth="180" text="Doi tuong"/>
-                <TableColumn fx:id="colConditions" prefWidth="230" text="Dieu kien ap dung"/>
-                <TableColumn fx:id="colActive" prefWidth="150" text="Trang thai"/>
-            </columns>
-        </TableView>
-    </VBox>
+            <VBox spacing="15" style="-fx-background-color: white; -fx-padding: 25; -fx-border-radius: 12; -fx-background-radius: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 4);">
+                <Label text="Danh sach ma giam gia" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #2c3e50; -fx-border-width: 0 0 0 4; -fx-border-color: #f39c12; -fx-padding: 0 0 0 10;"/>
+                <TableView fx:id="tblCoupons" prefHeight="320" style="-fx-fixed-cell-size: 32;">
+                    <columns>
+                        <TableColumn fx:id="colCode" prefWidth="140" text="Ma"/>
+                        <TableColumn fx:id="colDescription" prefWidth="210" text="Mo ta"/>
+                        <TableColumn fx:id="colPercent" prefWidth="120" text="Phan tram"/>
+                        <TableColumn fx:id="colTargetUsers" prefWidth="180" text="Doi tuong"/>
+                        <TableColumn fx:id="colConditions" prefWidth="230" text="Dieu kien ap dung"/>
+                        <TableColumn fx:id="colActive" prefWidth="150" text="Trang thai"/>
+                    </columns>
+                </TableView>
+            </VBox>
 
-    <HBox spacing="20" VBox.vgrow="ALWAYS">
+            <HBox spacing="20">
         <VBox spacing="12" style="-fx-background-color: white; -fx-padding: 20; -fx-border-radius: 12; -fx-background-radius: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 4);" HBox.hgrow="ALWAYS">
             <Label text="Thong tin ma giam gia" style="-fx-font-size: 17px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
             <GridPane hgap="12" vgap="10">
@@ -77,5 +80,7 @@
             <Label text="Chi tiet ma duoc chon" style="-fx-font-size: 17px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
             <Label fx:id="lblCouponDetail" text="Chon ma giam gia de xem chi tiet." wrapText="true" style="-fx-text-fill: #334155;"/>
         </VBox>
-    </HBox>
-</VBox>
+            </HBox>
+        </VBox>
+    </ScrollPane>
+</StackPane>
