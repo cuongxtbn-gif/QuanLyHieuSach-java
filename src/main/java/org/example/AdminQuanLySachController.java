@@ -13,9 +13,11 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.util.Callback;
 
 import java.text.DecimalFormat;
+import java.text.Normalizer;
 import java.util.Optional;
 
 public class AdminQuanLySachController {
@@ -336,28 +338,34 @@ public class AdminQuanLySachController {
         TextField txtTen = new TextField(); txtTen.setPromptText("Tên Sách");
         TextField txtTacGia = new TextField(); txtTacGia.setPromptText("Tác Giả");
         TextField txtGia = new TextField(); txtGia.setPromptText("Giá Bán (VNĐ)");
-        TextField txtTonKho = new TextField(); txtTonKho.setPromptText("Số lượng");
         ComboBox<String> cbLoai = new ComboBox<>(); cbLoai.getItems().addAll("Văn học", "Kỹ năng", "Kinh tế", "Trinh thám", "Tâm lý", "Ngoại ngữ");
-        TextField txtAnh = new TextField(); txtAnh.setPromptText("Link URL hoặc đường dẫn ảnh");
+        TextField txtNxb = new TextField(); txtNxb.setPromptText("Nhà Xuất Bản");
+        TextField txtSoTrang = new TextField(); txtSoTrang.setPromptText("Số trang");
+        TextArea txtMoTa = new TextArea(); txtMoTa.setPromptText("Mô tả"); txtMoTa.setPrefRowCount(3);
+        TextField txtAnh = new TextField(); txtAnh.setPromptText("Đường dẫn ảnh (VD: /assets/images/ten-anh.png)");
 
         grid.add(new Label("Tên Sách (*):"), 0, 0); grid.add(txtTen, 1, 0, 3, 1);
         grid.add(new Label("Tác Giả (*):"), 0, 1); grid.add(txtTacGia, 1, 1, 3, 1);
         grid.add(new Label("Giá Bán (*):"), 0, 2); grid.add(txtGia, 1, 2);
-        grid.add(new Label("Tồn Kho:"), 2, 2); grid.add(txtTonKho, 3, 2);
+        grid.add(new Label("Số trang (*):"), 2, 2); grid.add(txtSoTrang, 3, 2);
         grid.add(new Label("Thể Loại (*):"), 0, 3); grid.add(cbLoai, 1, 3, 3, 1);
-        grid.add(new Label("Link Ảnh:"), 0, 4); grid.add(txtAnh, 1, 4, 3, 1);
+        grid.add(new Label("Nhà XB (*):"), 0, 4); grid.add(txtNxb, 1, 4, 3, 1);
+        grid.add(new Label("Ảnh bìa:"), 0, 5); grid.add(txtAnh, 1, 5, 3, 1);
+        grid.add(new Label("Mô tả:"), 0, 6); grid.add(txtMoTa, 1, 6, 3, 1);
 
         // Đổ dữ liệu nếu là Edit
         if (sachToEdit != null) {
             txtTen.setText(sachToEdit.getTenSach());
             txtTacGia.setText(sachToEdit.getTacGia());
             txtGia.setText(String.valueOf(sachToEdit.getGiaBan()));
-            txtTonKho.setText("10"); // Lấy từ sachToEdit.getTonKho() nếu có
             cbLoai.setValue(sachToEdit.getTheLoai());
+            txtNxb.setText(sachToEdit.getNhaXuatBan());
+            txtSoTrang.setText(String.valueOf(sachToEdit.getSoTrang()));
             txtAnh.setText(sachToEdit.getHinhAnh());
+            txtMoTa.setText(sachToEdit.getMoTa());
         } else {
             cbLoai.getSelectionModel().selectFirst();
-            txtTonKho.setText("0");
+            txtSoTrang.setText("100");
         }
 
         dialog.getDialogPane().setContent(grid);
@@ -366,24 +374,77 @@ public class AdminQuanLySachController {
         dialog.setResultConverter(dialogButton -> {
             if (dialogButton == btnTypeLuu) {
                 try {
-                    double price = Double.parseDouble(txtGia.getText().trim());
-                    // Nếu là Edit thì set lại giá trị cho sachToEdit, nếu là Thêm thì tạo object mới
-                    // Ví dụ (cần dùng constructor class Sach của bạn):
-                    // Sach newBook = new Sach(txtTen.getText(), txtTacGia.getText(), cbLoai.getValue(), price, txtAnh.getText());
-                    // return newBook;
+                    String ten = txtTen.getText() == null ? "" : txtTen.getText().trim();
+                    String tacGia = txtTacGia.getText() == null ? "" : txtTacGia.getText().trim();
+                    String theLoai = cbLoai.getValue();
+                    String nxb = txtNxb.getText() == null ? "" : txtNxb.getText().trim();
+                    String img = txtAnh.getText() == null ? "" : txtAnh.getText().trim();
+                    String moTa = txtMoTa.getText() == null ? "" : txtMoTa.getText().trim();
 
-                    System.out.println("Đã lưu sách: " + txtTen.getText());
-                    // TODO: Ghi đè list masterData và lưu vào DB thực tế ở đây
+                    if (ten.isEmpty() || tacGia.isEmpty() || theLoai == null || theLoai.isBlank() || nxb.isEmpty()) {
+                        new Alert(Alert.AlertType.ERROR, "Vui lòng nhập đủ Tên sách, Tác giả, Thể loại và Nhà xuất bản.").show();
+                        return null;
+                    }
+
+                    double price = Double.parseDouble(txtGia.getText().trim());
+                    int soTrang = Integer.parseInt(txtSoTrang.getText().trim());
+                    if (price <= 0 || soTrang <= 0) {
+                        new Alert(Alert.AlertType.ERROR, "Giá bán và Số trang phải > 0.").show();
+                        return null;
+                    }
+
+                    // Nếu không nhập ảnh, dùng ảnh mặc định (tránh NPE load ảnh)
+                    if (img.isEmpty()) {
+                        img = "/assets/images/nha-gia-kim.jpg";
+                    }
+
+                    if (sachToEdit != null) {
+                        // Hiện tại class Sach chưa có setter -> coi như màn này chỉ thêm mới.
+                        new Alert(Alert.AlertType.INFORMATION, "Chức năng chỉnh sửa sẽ bổ sung sau. Hiện tại chỉ hỗ trợ thêm mới.").show();
+                        return null;
+                    }
+
+                    String id = taoIdSachTuTen(ten);
+                    // Tránh trùng ID: thêm hậu tố -2, -3...
+                    if (BookCatalog.findById(id).isPresent()) {
+                        int i = 2;
+                        while (BookCatalog.findById(id + "-" + i).isPresent()) i++;
+                        id = id + "-" + i;
+                    }
+
+                    return new Sach(id, ten, price, img, tacGia, theLoai, nxb, soTrang, moTa);
                 } catch (NumberFormatException e) {
-                    new Alert(Alert.AlertType.ERROR, "Giá bán phải là số hợp lệ!").show();
+                    new Alert(Alert.AlertType.ERROR, "Vui lòng nhập đúng định dạng số cho Giá bán và Số trang.").show();
                 }
             }
             return null;
         });
 
         dialog.showAndWait().ifPresent(sach -> {
-            // masterData.add(sach);
+            boolean added = BookCatalog.addBook(sach);
+            if (!added) {
+                new Alert(Alert.AlertType.ERROR, "Không thể thêm sách (trùng mã ID hoặc dữ liệu không hợp lệ).").show();
+                return;
+            }
+
+            // Cập nhật ngay bảng quản lý sách (admin)
+            // Sách mới thêm mặc định hết hàng, sẽ tăng lên khi nhập kho.
+            sach.setTonKho(0);
+            masterData.add(sach);
             updateFilter();
         });
+    }
+
+    private String taoIdSachTuTen(String ten) {
+        // slugify đơn giản: bỏ dấu, chữ thường, thay khoảng trắng bằng '-'
+        String s = Normalizer.normalize(ten, Normalizer.Form.NFD)
+                .replaceAll("\\p{M}+", "")
+                .toLowerCase()
+                .trim();
+        s = s.replaceAll("[^a-z0-9\\s-]", "");
+        s = s.replaceAll("\\s+", "-");
+        s = s.replaceAll("-{2,}", "-");
+        if (s.isEmpty()) s = "sach-moi";
+        return s;
     }
 }

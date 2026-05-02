@@ -348,11 +348,9 @@ public class SupplierController {
         txtBookQty.setText("10");
 
         ObservableList<BookOption> options = FXCollections.observableArrayList();
-        for(Book b : bookDatabase) {
-            if(currentViewSupplierId.equals("NCC-001") && b.getCategory().equals("Văn học")) options.add(new BookOption(b));
-            else if(currentViewSupplierId.equals("NCC-002") && b.getCategory().equals("Kỹ năng")) options.add(new BookOption(b));
-            else if(currentViewSupplierId.equals("NCC-003") && b.getCategory().equals("Kinh tế")) options.add(new BookOption(b));
-            else if(currentViewSupplierId.equals("NCC-004") && Arrays.asList("Tâm lý", "Trinh thám", "Ngoại ngữ").contains(b.getCategory())) options.add(new BookOption(b));
+        // Yêu cầu: danh sách nhập kho phải có tất cả sách trong danh mục
+        for (Sach s : BookCatalog.getAllBooks()) {
+            options.add(new BookOption(s));
         }
         cbBookSelect.setItems(options);
         modalAddInvoice.setVisible(true);
@@ -367,14 +365,14 @@ public class SupplierController {
 
         boolean found = false;
         for(InvoiceItem it : cartList) {
-            if(it.getBookId().equals(opt.book.getId())) {
+            if(it.getBookId().equals(opt.sach.getId())) {
                 it.setQuantity(it.getQuantity() + qty);
                 it.setTotal(it.getQuantity() * it.getPrice());
                 found = true; break;
             }
         }
         if(!found) {
-            cartList.add(new InvoiceItem(opt.book.getId(), opt.book.getTitle(), opt.importPrice, qty, opt.importPrice * qty));
+            cartList.add(new InvoiceItem(opt.sach.getId(), opt.sach.getTenSach(), opt.importPrice, qty, opt.importPrice * qty));
         }
         tableCart.refresh();
         updateCartTotal();
@@ -395,6 +393,11 @@ public class SupplierController {
         List<InvoiceItem> savedItems = new ArrayList<>(cartList);
         Invoice newInv = new Invoice(randomId, currentViewSupplierId, date, total, savedItems);
         invoiceList.add(newInv);
+
+        // Cộng tồn kho: mỗi item nhập về sẽ cộng thêm vào số lượng sẵn có
+        for (InvoiceItem it : savedItems) {
+            BookCatalog.findById(it.getBookId()).ifPresent(s -> s.setTonKho(s.getTonKho() + it.getQuantity()));
+        }
 
         for(Supplier s : supplierList) {
             if(s.getId().equals(currentViewSupplierId)) { s.addTotal(total); break; }
@@ -422,11 +425,11 @@ public class SupplierController {
     }
 
     public static class BookOption {
-        public Book book; public double importPrice;
-        public BookOption(Book b) { this.book = b; this.importPrice = b.getPrice() * 0.65; }
+        public Sach sach; public double importPrice;
+        public BookOption(Sach s) { this.sach = s; this.importPrice = s.getGiaBan() * 0.65; }
         @Override public String toString() {
             DecimalFormat df = new DecimalFormat("###,###,### đ");
-            return book.getTitle() + " (Bán: " + df.format(book.getPrice()) + " ➡️ Nhập: " + df.format(importPrice) + ")";
+            return sach.getTenSach() + " (Bán: " + df.format(sach.getGiaBan()) + " ➡️ Nhập: " + df.format(importPrice) + ")";
         }
     }
 

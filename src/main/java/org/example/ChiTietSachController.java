@@ -30,6 +30,7 @@ public class ChiTietSachController {
     @FXML private Label lblNhaXuatBan;
     @FXML private Label lblSoTrang;
     @FXML private Label lblTheLoaiDetail;
+    @FXML private Label lblTonKhoDetail;
     @FXML private Label lblMoTa;
 
     @FXML private TextField txtSoLuong;
@@ -65,6 +66,12 @@ public class ChiTietSachController {
         lblNhaXuatBan.setText(sach.getNhaXuatBan());
         lblSoTrang.setText(sach.getSoTrang() + " trang");
         lblTheLoaiDetail.setText(sach.getTheLoai());
+        if (lblTonKhoDetail != null) {
+            lblTonKhoDetail.setText(sach.getTonKho() > 0 ? (sach.getTonKho() + " cuốn") : "Đã hết hàng");
+            if (sach.getTonKho() <= 0) {
+                lblTonKhoDetail.setStyle("-fx-font-weight: bold; -fx-text-fill: #e74c3c;");
+            }
+        }
 
         lblMoTa.setText(sach.getMoTa());
         lblMoTa.setWrapText(true);
@@ -72,12 +79,28 @@ public class ChiTietSachController {
         if (txtSoLuong != null) {
             txtSoLuong.setText("1");
         }
+        capNhatTrangThaiTonKho();
         anFormDatHangVaBienLai();
 
         try {
             imgBiaSach.setImage(new Image(getClass().getResourceAsStream(sach.getHinhAnh())));
         } catch (Exception e) {
             System.out.println("Không tìm thấy ảnh: " + sach.getHinhAnh());
+        }
+    }
+
+    private void capNhatTrangThaiTonKho() {
+        boolean outOfStock = sachChon != null && sachChon.getTonKho() <= 0;
+        if (txtSoLuong != null) {
+            txtSoLuong.setDisable(outOfStock);
+        }
+        if (btnThemGio != null) {
+            btnThemGio.setDisable(outOfStock);
+            if (outOfStock) btnThemGio.setText("Đã hết hàng");
+        }
+        if (btnMuaNgay != null) {
+            btnMuaNgay.setDisable(outOfStock);
+            if (outOfStock) btnMuaNgay.setText("Đã hết hàng");
         }
     }
 
@@ -127,23 +150,33 @@ public class ChiTietSachController {
     @FXML
     public void themVaoGioHang() {
         if (sachChon == null) return;
+        if (sachChon.getTonKho() <= 0) {
+            Alert err = new Alert(Alert.AlertType.WARNING);
+            err.setTitle("Hết hàng");
+            err.setHeaderText(null);
+            err.setContentText("Sản phẩm này hiện đã hết hàng.");
+            err.showAndWait();
+            return;
+        }
         if (!yeuCauDangNhap()) return;
 
         int qty = docSoLuong();
+        if (qty > sachChon.getTonKho()) qty = sachChon.getTonKho();
         String ten = sachChon.getTenSach();
         double gia = sachChon.getGiaBan();
         ObservableList<CartController.CartItem> cart = CustomerAccountStore.getCart(UserSession.getUsername());
 
         boolean merged = false;
         for (CartController.CartItem it : cart) {
-            if (ten.equals(it.productNameProperty().get())) {
+            String itId = it.bookIdProperty() == null ? null : it.bookIdProperty().get();
+            if ((itId != null && itId.equals(sachChon.getId())) || ten.equals(it.productNameProperty().get())) {
                 it.setQuantity(it.getQuantity() + qty);
                 merged = true;
                 break;
             }
         }
         if (!merged) {
-            cart.add(new CartController.CartItem(ten, gia, qty));
+            cart.add(new CartController.CartItem(sachChon.getId(), ten, gia, qty));
         }
 
         Alert ok = new Alert(Alert.AlertType.INFORMATION);
@@ -156,6 +189,14 @@ public class ChiTietSachController {
     @FXML
     public void onMuaNgay() {
         if (sachChon == null) return;
+        if (sachChon.getTonKho() <= 0) {
+            Alert err = new Alert(Alert.AlertType.WARNING);
+            err.setTitle("Hết hàng");
+            err.setHeaderText(null);
+            err.setContentText("Sản phẩm này hiện đã hết hàng.");
+            err.showAndWait();
+            return;
+        }
         if (!yeuCauDangNhap()) return;
 
         if (vboxOrderPlaced != null) {
@@ -195,6 +236,14 @@ public class ChiTietSachController {
         }
 
         int qty = docSoLuong();
+        if (sachChon.getTonKho() <= 0) {
+            new Alert(Alert.AlertType.WARNING, "Sản phẩm đã hết hàng.").showAndWait();
+            capNhatTrangThaiTonKho();
+            return;
+        }
+        if (qty > sachChon.getTonKho()) {
+            qty = sachChon.getTonKho();
+        }
         double total = sachChon.getGiaBan() * qty;
 
         String user = UserSession.getUsername();
@@ -205,6 +254,12 @@ public class ChiTietSachController {
 
         String purchasedItems = sachChon.getTenSach() + " x" + qty + " - " + moneyFmt.format(total);
         userOrders.add(0, new CartController.Order(orderId, user, purchasedItems, placedAt, total, "Chờ xác nhận"));
+        // Trừ tồn kho ngay khi đặt (đảm bảo trạng thái "hết hàng" cập nhật)
+        sachChon.setTonKho(sachChon.getTonKho() - qty);
+        if (lblTonKhoDetail != null) {
+            lblTonKhoDetail.setText(sachChon.getTonKho() > 0 ? (sachChon.getTonKho() + " cuốn") : "Đã hết hàng");
+        }
+        capNhatTrangThaiTonKho();
 
         if (vboxQuickCheckout != null) {
             vboxQuickCheckout.setVisible(false);

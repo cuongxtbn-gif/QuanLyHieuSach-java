@@ -108,6 +108,7 @@ public final class CustomerAccountStore {
     private static ObservableList<CartController.CartItem> createHydratedCart(String user) {
         ObservableList<CartController.CartItem> list = FXCollections.observableArrayList(
                 item -> new Observable[]{
+                        item.bookIdProperty(),
                         item.productNameProperty(),
                         item.priceProperty(),
                         item.quantityProperty(),
@@ -116,7 +117,17 @@ public final class CustomerAccountStore {
         UserSnapshot snap = snapshotFor(user);
         if (snap != null) {
             for (CartLineDto line : snap.cart) {
-                CartController.CartItem it = new CartController.CartItem(line.productName, line.price, line.quantity);
+                String id = line.bookId;
+                if ((id == null || id.isBlank()) && line.productName != null) {
+                    // fallback tương thích dữ liệu cũ: tìm id theo tên
+                    for (Sach s : BookCatalog.getAllBooks()) {
+                        if (line.productName.equalsIgnoreCase(s.getTenSach())) {
+                            id = s.getId();
+                            break;
+                        }
+                    }
+                }
+                CartController.CartItem it = new CartController.CartItem(id, line.productName, line.price, line.quantity);
                 it.setSelected(line.selected);
                 list.add(it);
             }
@@ -168,6 +179,7 @@ public final class CustomerAccountStore {
                 if (carts.containsKey(u)) {
                     for (CartController.CartItem item : carts.get(u)) {
                         blob.cart.add(new CartLineDto(
+                                item.bookIdProperty() == null ? null : item.bookIdProperty().get(),
                                 item.productNameProperty().get(),
                                 item.priceProperty().get(),
                                 item.getQuantity(),
@@ -261,12 +273,14 @@ public final class CustomerAccountStore {
 
     private static final class CartLineDto implements Serializable {
         private static final long serialVersionUID = 1L;
+        final String bookId;
         final String productName;
         final double price;
         final int quantity;
         final boolean selected;
 
-        CartLineDto(String productName, double price, int quantity, boolean selected) {
+        CartLineDto(String bookId, String productName, double price, int quantity, boolean selected) {
+            this.bookId = bookId;
             this.productName = productName;
             this.price = price;
             this.quantity = quantity;

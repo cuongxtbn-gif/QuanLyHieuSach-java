@@ -18,6 +18,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 
 public class CartController {
 
@@ -348,12 +349,42 @@ public class CartController {
             return;
         }
 
+        // 1) Validate tồn kho cho các sản phẩm đã chọn
+        List<String> errors = new ArrayList<>();
+        for (CartItem item : cartList) {
+            if (!item.isSelected()) continue;
+
+            Optional<Sach> sachOpt = resolveSach(item);
+            if (sachOpt.isEmpty()) {
+                errors.add("Không tìm thấy sách: " + item.productNameProperty().get());
+                continue;
+            }
+            Sach sach = sachOpt.get();
+            int want = item.getQuantity();
+            int stock = sach.getTonKho();
+            if (stock <= 0) {
+                errors.add("«" + sach.getTenSach() + "» đã hết hàng.");
+            } else if (want > stock) {
+                errors.add("«" + sach.getTenSach() + "» chỉ còn " + stock + " cuốn (bạn chọn " + want + ").");
+            }
+        }
+        if (!errors.isEmpty()) {
+            showAlert(Alert.AlertType.WARNING, "Không đủ tồn kho", String.join("\n", errors));
+            return;
+        }
+
         String user = UserSession.getUsername();
         String randomStr = Long.toHexString(Double.doubleToLongBits(Math.random())).substring(0, 4).toUpperCase();
         ObservableList<Order> userOrders = CustomerAccountStore.getOrders(user);
         String orderId = "#ORD-" + (userOrders.size() + 1) + "-" + randomStr;
         LocalDateTime placedAt = LocalDateTime.now();
         String purchasedItems = buildPurchasedItemsSummary();
+
+        // 2) Trừ tồn kho (sau khi đã validate)
+        for (CartItem item : cartList) {
+            if (!item.isSelected()) continue;
+            resolveSach(item).ifPresent(s -> s.setTonKho(s.getTonKho() - item.getQuantity()));
+        }
 
         userOrders.add(0, new Order(orderId, user, purchasedItems, placedAt, currentTotalToPay, "Chờ xác nhận"));
 
@@ -379,6 +410,22 @@ public class CartController {
         txtName.clear(); txtPhone.clear(); txtAddress.clear();
 
         showAlert(Alert.AlertType.INFORMATION, "Thành công", "Đặt hàng thành công! Đơn hàng sẽ được chuyển đến Admin.");
+    }
+
+    private Optional<Sach> resolveSach(CartItem item) {
+        if (item == null) return Optional.empty();
+        String id = item.bookIdProperty() == null ? null : item.bookIdProperty().get();
+        if (id != null && !id.isBlank()) {
+            Optional<Sach> byId = BookCatalog.findById(id);
+            if (byId.isPresent()) return byId;
+        }
+        String name = item.productNameProperty() == null ? null : item.productNameProperty().get();
+        if (name == null || name.isBlank()) return Optional.empty();
+        // fallback theo tên (tương thích dữ liệu cũ)
+        for (Sach s : BookCatalog.getAllBooks()) {
+            if (name.equalsIgnoreCase(s.getTenSach())) return Optional.of(s);
+        }
+        return Optional.empty();
     }
 
     private boolean isAllSelected() {
@@ -460,18 +507,25 @@ public class CartController {
     // ================= CÁC LỚP MÔ HÌNH DỮ LIỆU (Đã bổ sung) =================
 
     public static class CartItem {
+        private final StringProperty bookId;
         private final StringProperty productName;
         private final DoubleProperty price;
         private final IntegerProperty quantity;
         private final BooleanProperty selected;
 
         public CartItem(String productName, double price, int quantity) {
+            this(null, productName, price, quantity);
+        }
+
+        public CartItem(String bookId, String productName, double price, int quantity) {
+            this.bookId = new SimpleStringProperty(bookId);
             this.productName = new SimpleStringProperty(productName);
             this.price = new SimpleDoubleProperty(price);
             this.quantity = new SimpleIntegerProperty(quantity);
             this.selected = new SimpleBooleanProperty(false);
         }
 
+        public StringProperty bookIdProperty() { return bookId; }
         public StringProperty productNameProperty() { return productName; }
         public DoubleProperty priceProperty() { return price; }
         public IntegerProperty quantityProperty() { return quantity; }
