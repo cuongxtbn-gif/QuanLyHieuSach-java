@@ -203,7 +203,8 @@ public class ChiTietSachController {
         String orderId = "#ORD-" + (userOrders.size() + 1) + "-" + randomStr;
         LocalDateTime placedAt = LocalDateTime.now();
 
-        userOrders.add(0, new CartController.Order(orderId, placedAt, total, "Chờ xác nhận"));
+        String purchasedItems = sachChon.getTenSach() + " x" + qty + " - " + moneyFmt.format(total);
+        userOrders.add(0, new CartController.Order(orderId, user, purchasedItems, placedAt, total, "Chờ xác nhận"));
 
         if (vboxQuickCheckout != null) {
             vboxQuickCheckout.setVisible(false);

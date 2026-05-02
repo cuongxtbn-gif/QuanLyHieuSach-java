@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="18" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="org.example.AdminMaGiamGiaController">
+    <Label text="Quản lý mã giảm giá" styleClass="page-title"/>
+
+    <TableView fx:id="tblCoupons" prefHeight="260">
+        <columns>
+            <TableColumn fx:id="colCode" prefWidth="120" text="Mã"/>
+            <TableColumn fx:id="colDescription" prefWidth="220" text="Mô tả"/>
+            <TableColumn fx:id="colPercent" prefWidth="90" text="% giảm"/>
+            <TableColumn fx:id="colTargetUsers" prefWidth="170" text="Đối tượng"/>
+            <TableColumn fx:id="colConditions" prefWidth="220" text="Điều kiện áp dụng"/>
+            <TableColumn fx:id="colActive" prefWidth="90" text="Kích hoạt"/>
+        </columns>
+    </TableView>
+
+    <GridPane hgap="10" vgap="10">
+        <columnConstraints>
+            <ColumnConstraints percentWidth="50"/>
+            <ColumnConstraints percentWidth="50"/>
+        </columnConstraints>
+        <Label text="Mã giảm giá" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+        <TextField fx:id="txtCode" promptText="VD: SPRING15" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+
+        <Label text="Mô tả" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+        <TextField fx:id="txtDescription" promptText="Mô tả ngắn" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+
+        <Label text="% giảm" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+        <TextField fx:id="txtPercent" promptText="VD: 15" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+
+        <Label text="Đối tượng áp dụng" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+        <TextField fx:id="txtTargetUsers" promptText="VD: Thành viên VIP" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+
+        <Label text="Điều kiện áp dụng" GridPane.columnIndex="0" GridPane.rowIndex="4"/>
+        <TextArea fx:id="txtConditions" prefRowCount="3" promptText="VD: Đơn từ 300,000đ" GridPane.columnIndex="0" GridPane.rowIndex="5" GridPane.columnSpan="2"/>
+
+        <CheckBox fx:id="chkActive" text="Mã đang hoạt động" selected="true" GridPane.columnIndex="0" GridPane.rowIndex="6"/>
+    </GridPane>
+
+    <HBox spacing="10">
+        <Button text="Thêm mã" onAction="#handleAddCoupon" style="-fx-background-color: #27ae60; -fx-text-fill: white;"/>
+        <Button text="Sửa mã" onAction="#handleUpdateCoupon" style="-fx-background-color: #2980b9; -fx-text-fill: white;"/>
+        <Button text="Xóa mã" onAction="#handleDeleteCoupon" style="-fx-background-color: #c0392b; -fx-text-fill: white;"/>
+    </HBox>
+
+    <VBox styleClass="table-container">
+        <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
+        <Label text="Chi tiết mã giảm giá"/>
+        <Label fx:id="lblCouponDetail" text="Chọn mã giảm giá để xem chi tiết." wrapText="true"/>
+    </VBox>
+</VBox>

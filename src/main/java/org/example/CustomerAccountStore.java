@@ -33,9 +33,14 @@ public final class CustomerAccountStore {
 
     private static final Map<String, ObservableList<CartController.CartItem>> carts = new ConcurrentHashMap<>();
     private static final Map<String, ObservableList<CartController.Order>> orders = new ConcurrentHashMap<>();
+    private static final ObservableList<DiscountCoupon> coupons = FXCollections.observableArrayList();
 
     /** Bản sao dữ liệu đã đọc từ file; dùng khi user chưa mở giỏ/đơn trong phiên này. */
     private static RootDocument rootDocument = loadFromDisk();
+
+    static {
+        hydrateCoupons();
+    }
 
     private CustomerAccountStore() {}
 
@@ -53,6 +58,51 @@ public final class CustomerAccountStore {
         }
         final String user = username.trim();
         return orders.computeIfAbsent(user, CustomerAccountStore::createHydratedOrders);
+    }
+
+    public static ObservableList<CartController.Order> getAllOrders() {
+        if (rootDocument != null && rootDocument.users != null) {
+            for (String user : rootDocument.users.keySet()) {
+                getOrders(user);
+            }
+        }
+        ObservableList<CartController.Order> all = FXCollections.observableArrayList();
+        for (ObservableList<CartController.Order> eachUserOrders : orders.values()) {
+            all.addAll(eachUserOrders);
+        }
+        return all;
+    }
+
+    public static boolean updateOrderStatus(String orderId, String username, String newStatus) {
+        if (username != null && !username.isBlank()) {
+            ObservableList<CartController.Order> userOrders = getOrders(username);
+            for (CartController.Order order : userOrders) {
+                if (order.orderIdProperty().get().equals(orderId)) {
+                    order.statusProperty().set(newStatus);
+                    persist();
+                    return true;
+                }
+            }
+        }
+
+        for (ObservableList<CartController.Order> userOrders : orders.values()) {
+            for (CartController.Order order : userOrders) {
+                if (order.orderIdProperty().get().equals(orderId)) {
+                    order.statusProperty().set(newStatus);
+                    persist();
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public static ObservableList<DiscountCoupon> getCoupons() {
+        return coupons;
+    }
+
+    public static void saveNow() {
+        persist();
     }
 
     private static ObservableList<CartController.CartItem> createHydratedCart(String user) {
@@ -82,6 +132,8 @@ public final class CustomerAccountStore {
             for (OrderLineDto line : snap.orders) {
                 list.add(new CartController.Order(
                         line.orderId,
+                        line.username,
+                        line.purchasedItems,
                         line.orderDate,
                         line.orderMonth,
                         line.orderTime,
@@ -130,6 +182,8 @@ public final class CustomerAccountStore {
                     for (CartController.Order o : orders.get(u)) {
                         blob.orders.add(new OrderLineDto(
                                 o.orderIdProperty().get(),
+                                o.usernameProperty().get(),
+                                o.purchasedItemsProperty().get(),
                                 o.orderDateProperty().get(),
                                 o.orderMonthProperty().get(),
                                 o.orderTimeProperty().get(),
@@ -142,6 +196,17 @@ public final class CustomerAccountStore {
                 }
 
                 out.users.put(u, blob);
+            }
+
+            for (DiscountCoupon coupon : coupons) {
+                out.coupons.add(new CouponDto(
+                        coupon.codeProperty().get(),
+                        coupon.descriptionProperty().get(),
+                        coupon.discountPercentProperty().get(),
+                        coupon.targetUsersProperty().get(),
+                        coupon.conditionsProperty().get(),
+                        coupon.activeProperty().get()
+                ));
             }
 
             rootDocument = out;
@@ -185,6 +250,7 @@ public final class CustomerAccountStore {
     private static final class RootDocument implements Serializable {
         private static final long serialVersionUID = 1L;
         final Map<String, UserSnapshot> users = new HashMap<>();
+        final List<CouponDto> coupons = new ArrayList<>();
     }
 
     private static final class UserSnapshot implements Serializable {
@@ -211,19 +277,108 @@ public final class CustomerAccountStore {
     private static final class OrderLineDto implements Serializable {
         private static final long serialVersionUID = 1L;
         final String orderId;
+        final String username;
+        final String purchasedItems;
         final String orderDate;
         final String orderMonth;
         final String orderTime;
         final double total;
         final String status;
 
-        OrderLineDto(String orderId, String orderDate, String orderMonth, String orderTime, double total, String status) {
+        OrderLineDto(String orderId, String username, String purchasedItems, String orderDate, String orderMonth, String orderTime, double total, String status) {
             this.orderId = orderId;
+            this.username = username;
+            this.purchasedItems = purchasedItems;
             this.orderDate = orderDate;
             this.orderMonth = orderMonth;
             this.orderTime = orderTime;
             this.total = total;
             this.status = status;
         }
+    }
+
+    private static final class CouponDto implements Serializable {
+        private static final long serialVersionUID = 1L;
+        final String code;
+        final String description;
+        final double discountPercent;
+        final String targetUsers;
+        final String conditions;
+        final boolean active;
+
+        CouponDto(String code, String description, double discountPercent, String targetUsers, String conditions, boolean active) {
+            this.code = code;
+            this.description = description;
+            this.discountPercent = discountPercent;
+            this.targetUsers = targetUsers;
+            this.conditions = conditions;
+            this.active = active;
+        }
+    }
+
+    private static void hydrateCoupons() {
+        coupons.clear();
+        if (rootDocument != null && rootDocument.coupons != null) {
+            for (CouponDto dto : rootDocument.coupons) {
+                coupons.add(new DiscountCoupon(
+                        dto.code,
+                        dto.description,
+                        dto.discountPercent,
+                        dto.targetUsers,
+                        dto.conditions,
+                        dto.active
+                ));
+            }
+        }
+
+        boolean changed = false;
+        if (coupons.isEmpty()) {
+            coupons.add(new DiscountCoupon(
+                    "WELCOME10",
+                    "Giảm 10% cho khách hàng mới",
+                    10,
+                    "Khách hàng mới",
+                    "Đơn từ 150,000đ",
+                    true
+            ));
+            coupons.add(new DiscountCoupon(
+                    "VIP15",
+                    "Ưu đãi 15% dành cho thành viên VIP",
+                    15,
+                    "Thành viên VIP",
+                    "Đơn từ 300,000đ",
+                    true
+            ));
+            changed = true;
+        }
+
+        changed |= ensureSampleCoupon("ALL5", "Giảm 5% cho mọi tài khoản", 5, "Tất cả", "Đơn từ 50,000đ", true);
+        changed |= ensureSampleCoupon("SAVE12", "Giảm 12% khi mua đơn trung bình", 12, "Tất cả", "Đơn từ 200,000đ", true);
+        changed |= ensureSampleCoupon("BIG25", "Giảm mạnh cho đơn lớn", 25, "Tất cả", "Đơn từ 700,000đ", true);
+        changed |= ensureSampleCoupon("STUDENT8", "Ưu đãi học sinh sinh viên", 8, "Tất cả", "Đơn từ 100,000đ", true);
+        changed |= ensureSampleCoupon("INACTIVE15", "Mã thử trạng thái tắt", 15, "Tất cả", "Đơn từ 120,000đ", false);
+
+        if (changed) {
+            persist();
+        }
+
+        coupons.addListener((ListChangeListener<DiscountCoupon>) c -> persist());
+    }
+
+    private static boolean ensureSampleCoupon(
+            String code,
+            String description,
+            double discountPercent,
+            String targetUsers,
+            String conditions,
+            boolean active
+    ) {
+        for (DiscountCoupon coupon : coupons) {
+            if (coupon.codeProperty().get().equalsIgnoreCase(code)) {
+                return false;
+            }
+        }
+        coupons.add(new DiscountCoupon(code, description, discountPercent, targetUsers, conditions, active));
+        return true;
     }
 }

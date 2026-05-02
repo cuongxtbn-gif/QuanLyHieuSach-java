@@ -17,6 +17,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class CartController {
 
@@ -36,6 +37,7 @@ public class CartController {
     // Thanh toán & Voucher
     @FXML private HBox voucherContainer;
     @FXML private Button btnApplyVoucher;
+    @FXML private TextField txtCouponCode;
     @FXML private CheckBox checkSelectAllBottom;
     @FXML private Label lblTotalPrice;
     @FXML private Button btnShowCheckout;
@@ -63,6 +65,7 @@ public class CartController {
     private ObservableList<CartItem> cartList = FXCollections.observableArrayList();
     private ObservableList<Order> orderList = FXCollections.observableArrayList();
     private boolean isVoucherApplied = false;
+    private DiscountCoupon appliedCoupon;
     private double currentTotalToPay = 0;
     private final DecimalFormat formatter = new DecimalFormat("#,###đ");
 
@@ -251,14 +254,26 @@ public class CartController {
                 showAlert(Alert.AlertType.WARNING, "Cảnh báo", "Vui lòng chọn sản phẩm trước khi áp dụng voucher!");
                 return;
             }
-            isVoucherApplied = !isVoucherApplied;
-            if (isVoucherApplied) {
-                btnApplyVoucher.setText("Đã áp dụng (-8%)");
-                btnApplyVoucher.setStyle("-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold;");
-            } else {
-                btnApplyVoucher.setText("Áp dụng");
-                btnApplyVoucher.setStyle("-fx-background-color: #e67e22; -fx-text-fill: white; -fx-font-weight: bold;");
+            String code = txtCouponCode == null ? "" : txtCouponCode.getText().trim();
+            if (code.isEmpty()) {
+                showAlert(Alert.AlertType.WARNING, "Cảnh báo", "Vui lòng nhập mã giảm giá.");
+                return;
             }
+
+            DiscountCoupon found = findCoupon(code);
+            if (found == null || !found.activeProperty().get()) {
+                showAlert(Alert.AlertType.ERROR, "Không hợp lệ", "Mã giảm giá không tồn tại hoặc đã ngừng hoạt động.");
+                return;
+            }
+            if (!isCouponEligible(found)) {
+                showAlert(Alert.AlertType.WARNING, "Không đủ điều kiện", "Tài khoản hoặc điều kiện đơn hàng chưa phù hợp mã này.");
+                return;
+            }
+
+            appliedCoupon = found;
+            isVoucherApplied = true;
+            btnApplyVoucher.setText("Đã áp dụng (" + found.discountPercentProperty().get() + "%)");
+            btnApplyVoucher.setStyle("-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold;");
             calculateTotal();
         });
 
@@ -307,14 +322,16 @@ public class CartController {
 
         if (count == 0 && isVoucherApplied) {
             isVoucherApplied = false;
+            appliedCoupon = null;
             btnApplyVoucher.setText("Áp dụng");
             btnApplyVoucher.setStyle("-fx-background-color: #e67e22; -fx-text-fill: white; -fx-font-weight: bold;");
         }
 
         if (isVoucherApplied && total > 0) {
-            double discount = total * 0.08;
+            double percent = appliedCoupon == null ? 0 : appliedCoupon.discountPercentProperty().get();
+            double discount = total * (percent / 100.0);
             currentTotalToPay = total - discount;
-            lblTotalPrice.setText(String.format("Tổng thanh toán (%d sản phẩm): %s (Đã giảm 8%%)", count, formatter.format(currentTotalToPay)));
+            lblTotalPrice.setText(String.format("Tổng thanh toán (%d sản phẩm): %s (Đã giảm %.1f%%)", count, formatter.format(currentTotalToPay), percent));
         } else {
             currentTotalToPay = total;
             lblTotalPrice.setText(String.format("Tổng thanh toán (%d sản phẩm): %s", count, formatter.format(total)));
@@ -336,8 +353,9 @@ public class CartController {
         ObservableList<Order> userOrders = CustomerAccountStore.getOrders(user);
         String orderId = "#ORD-" + (userOrders.size() + 1) + "-" + randomStr;
         LocalDateTime placedAt = LocalDateTime.now();
+        String purchasedItems = buildPurchasedItemsSummary();
 
-        userOrders.add(0, new Order(orderId, placedAt, currentTotalToPay, "Chờ xác nhận"));
+        userOrders.add(0, new Order(orderId, user, purchasedItems, placedAt, currentTotalToPay, "Chờ xác nhận"));
 
         List<CartItem> itemsToRemove = new ArrayList<>();
         for (CartItem item : cartList) {
@@ -346,9 +364,13 @@ public class CartController {
         cartList.removeAll(itemsToRemove);
 
         if (isVoucherApplied) {
-            voucherContainer.setVisible(false);
-            voucherContainer.setManaged(false);
             isVoucherApplied = false;
+            appliedCoupon = null;
+            if (txtCouponCode != null) {
+                txtCouponCode.clear();
+            }
+            btnApplyVoucher.setText("Áp dụng");
+            btnApplyVoucher.setStyle("-fx-background-color: #e67e22; -fx-text-fill: white; -fx-font-weight: bold;");
         }
         checkSelectAllBottom.setSelected(false);
         calculateTotal();
@@ -366,6 +388,65 @@ public class CartController {
 
     private int getSelectedItemsCount() {
         return (int) cartList.stream().filter(CartItem::isSelected).count();
+    }
+
+    private String buildPurchasedItemsSummary() {
+        List<String> lines = new ArrayList<>();
+        for (CartItem item : cartList) {
+            if (item.isSelected()) {
+                lines.add(item.productNameProperty().get() + " x" + item.getQuantity() + " - " + formatter.format(item.getTotalPrice()));
+            }
+        }
+        return String.join(" | ", lines);
+    }
+
+    private DiscountCoupon findCoupon(String code) {
+        for (DiscountCoupon coupon : CustomerAccountStore.getCoupons()) {
+            if (coupon.codeProperty().get().equalsIgnoreCase(code)) {
+                return coupon;
+            }
+        }
+        return null;
+    }
+
+    private boolean isCouponEligible(DiscountCoupon coupon) {
+        String target = safeLower(coupon.targetUsersProperty().get());
+        String username = safeLower(UserSession.getUsername());
+        if (target.contains("mới")) {
+            if (!CustomerAccountStore.getOrders(UserSession.getUsername()).isEmpty()) {
+                return false;
+            }
+        } else if (target.contains("vip")) {
+            if (!username.contains("vip")) {
+                return false;
+            }
+        }
+
+        double selectedTotal = 0;
+        for (CartItem item : cartList) {
+            if (item.isSelected()) {
+                selectedTotal += item.getTotalPrice();
+            }
+        }
+        double minOrder = parseMinOrder(coupon.conditionsProperty().get());
+        return selectedTotal >= minOrder;
+    }
+
+    private double parseMinOrder(String conditions) {
+        if (conditions == null) return 0;
+        String lower = conditions.toLowerCase(Locale.ROOT);
+        if (!lower.contains("đơn từ")) return 0;
+        String digits = conditions.replaceAll("[^0-9]", "");
+        if (digits.isEmpty()) return 0;
+        try {
+            return Double.parseDouble(digits);
+        } catch (NumberFormatException ignored) {
+            return 0;
+        }
+    }
+
+    private String safeLower(String input) {
+        return input == null ? "" : input.toLowerCase(Locale.ROOT);
     }
 
     private void showAlert(Alert.AlertType type, String title, String content) {
@@ -410,14 +491,18 @@ public class CartController {
 
     public static class Order {
         private final StringProperty orderId;
+        private final StringProperty username;
+        private final StringProperty purchasedItems;
         private final StringProperty orderDate;
         private final StringProperty orderMonth;
         private final StringProperty orderTime;
         private final DoubleProperty total;
         private final StringProperty status;
 
-        public Order(String orderId, LocalDateTime placedAt, double total, String status) {
+        public Order(String orderId, String username, String purchasedItems, LocalDateTime placedAt, double total, String status) {
             this.orderId = new SimpleStringProperty(orderId);
+            this.username = new SimpleStringProperty(username);
+            this.purchasedItems = new SimpleStringProperty(purchasedItems);
             DateTimeFormatter day = DateTimeFormatter.ofPattern("dd/MM/yyyy");
             DateTimeFormatter month = DateTimeFormatter.ofPattern("MM/yyyy");
             DateTimeFormatter time = DateTimeFormatter.ofPattern("HH:mm:ss");
@@ -429,8 +514,10 @@ public class CartController {
         }
 
         /** Khôi phục từ file lưu trữ (đăng nhập lại). */
-        public Order(String orderId, String orderDate, String orderMonth, String orderTime, double total, String status) {
+        public Order(String orderId, String username, String purchasedItems, String orderDate, String orderMonth, String orderTime, double total, String status) {
             this.orderId = new SimpleStringProperty(orderId);
+            this.username = new SimpleStringProperty(username);
+            this.purchasedItems = new SimpleStringProperty(purchasedItems);
             this.orderDate = new SimpleStringProperty(orderDate);
             this.orderMonth = new SimpleStringProperty(orderMonth);
             this.orderTime = new SimpleStringProperty(orderTime);
@@ -439,6 +526,8 @@ public class CartController {
         }
 
         public StringProperty orderIdProperty() { return orderId; }
+        public StringProperty usernameProperty() { return username; }
+        public StringProperty purchasedItemsProperty() { return purchasedItems; }
         public StringProperty orderDateProperty() { return orderDate; }
         public StringProperty orderMonthProperty() { return orderMonth; }
         public StringProperty orderTimeProperty() { return orderTime; }

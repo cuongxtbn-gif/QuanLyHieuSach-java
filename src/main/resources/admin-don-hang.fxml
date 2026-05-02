@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="14" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="org.example.AdminDonHangController">
+    <HBox spacing="15">
+        <VBox styleClass="stat-card, green-border" HBox.hgrow="ALWAYS">
+            <Label text="Đơn chờ xác nhận"/>
+            <Label fx:id="lblPendingCount" styleClass="stat-value" text="0"/>
+        </VBox>
+        <VBox styleClass="stat-card, blue-border" HBox.hgrow="ALWAYS">
+            <Label text="Đơn đã duyệt"/>
+            <Label fx:id="lblApprovedCount" styleClass="stat-value" text="0"/>
+        </VBox>
+    </HBox>
+
+    <HBox spacing="15" alignment="CENTER_LEFT">
+        <Button text="Chọn tất cả đơn chờ" onAction="#handleSelectAllPending"/>
+        <Button text="Bỏ chọn tất cả" onAction="#handleClearPendingSelection"/>
+        <Button text="Duyệt đơn đã chọn" onAction="#handleApproveOrder" style="-fx-background-color: #27ae60; -fx-text-fill: white;"/>
+        <Button text="Hủy đơn đã chọn" onAction="#handleCancelOrder" style="-fx-background-color: #c0392b; -fx-text-fill: white;"/>
+        <Label text="Tích chọn nhiều đơn trong bảng Chờ xác nhận để thao tác hàng loạt."/>
+    </HBox>
+
+    <TabPane tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+        <tabs>
+            <Tab text="Đơn chờ xác nhận">
+                <VBox spacing="8">
+                    <padding><Insets top="8" right="0" bottom="8" left="0"/></padding>
+                    <TableView fx:id="tblPendingOrders" prefHeight="430" VBox.vgrow="ALWAYS">
+                        <columns>
+                            <TableColumn fx:id="colPendingCheck" prefWidth="80" text="Chọn"/>
+                            <TableColumn fx:id="colPendingId" prefWidth="190" text="Mã đơn"/>
+                            <TableColumn fx:id="colPendingDate" prefWidth="140" text="Ngày đặt"/>
+                            <TableColumn fx:id="colPendingCustomer" prefWidth="220" text="Khách hàng"/>
+                            <TableColumn fx:id="colPendingTotal" prefWidth="150" text="Tổng tiền"/>
+                            <TableColumn fx:id="colPendingStatus" prefWidth="150" text="Trạng thái"/>
+                        </columns>
+                    </TableView>
+                </VBox>
+            </Tab>
+            <Tab text="Đơn đã duyệt">
+                <VBox spacing="8">
+                    <padding><Insets top="8" right="0" bottom="8" left="0"/></padding>
+                    <TableView fx:id="tblApprovedOrders" prefHeight="430" VBox.vgrow="ALWAYS">
+                        <columns>
+                            <TableColumn fx:id="colApprovedId" prefWidth="190" text="Mã đơn"/>
+                            <TableColumn fx:id="colApprovedDate" prefWidth="140" text="Ngày đặt"/>
+                            <TableColumn fx:id="colApprovedCustomer" prefWidth="220" text="Khách hàng"/>
+                            <TableColumn fx:id="colApprovedTotal" prefWidth="150" text="Tổng tiền"/>
+                            <TableColumn fx:id="colApprovedStatus" prefWidth="150" text="Trạng thái"/>
+                        </columns>
+                    </TableView>
+                </VBox>
+            </Tab>
+        </tabs>
+    </TabPane>
+
+    <VBox spacing="8" styleClass="table-container">
+        <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
+        <Label text="Chi tiết đơn hàng" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+        <Label text="Mã đơn:"/>
+        <Label fx:id="lblDetailOrderId" text="-"/>
+        <Label text="Khách hàng:"/>
+        <Label fx:id="lblDetailCustomer" text="-"/>
+        <Label text="Thời gian đặt:"/>
+        <Label fx:id="lblDetailDate" text="-"/>
+        <Label text="Trạng thái:"/>
+        <Label fx:id="lblDetailStatus" text="-"/>
+        <Label text="Sản phẩm đã mua:"/>
+        <Label fx:id="lblDetailItems" text="Chọn đơn hàng để xem chi tiết." wrapText="true"/>
+    </VBox>
+</VBox>
