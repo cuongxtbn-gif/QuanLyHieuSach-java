@@ -101,6 +101,41 @@ public final class CustomerAccountStore {
         return coupons;
     }
 
+    public static boolean addCoupon(DiscountCoupon coupon) {
+        if (coupon == null || coupon.codeProperty().get() == null || coupon.codeProperty().get().isBlank()) {
+            return false;
+        }
+        for (DiscountCoupon existing : coupons) {
+            if (existing.codeProperty().get().equalsIgnoreCase(coupon.codeProperty().get())) {
+                return false;
+            }
+        }
+        coupons.add(coupon);
+        persist();
+        return true;
+    }
+
+    public static boolean consumeCoupon(String code) {
+        if (code == null || code.isBlank()) {
+            return false;
+        }
+        for (DiscountCoupon coupon : coupons) {
+            if (coupon.codeProperty().get().equalsIgnoreCase(code)) {
+                int current = coupon.quantityProperty().get();
+                if (current <= 0) {
+                    return false;
+                }
+                coupon.quantityProperty().set(current - 1);
+                if (coupon.quantityProperty().get() <= 0) {
+                    coupon.activeProperty().set(false);
+                }
+                persist();
+                return true;
+            }
+        }
+        return false;
+    }
+
     public static void saveNow() {
         persist();
     }
@@ -205,6 +240,7 @@ public final class CustomerAccountStore {
                         coupon.discountPercentProperty().get(),
                         coupon.targetUsersProperty().get(),
                         coupon.conditionsProperty().get(),
+                        coupon.quantityProperty().get(),
                         coupon.activeProperty().get()
                 ));
             }
@@ -304,14 +340,16 @@ public final class CustomerAccountStore {
         final double discountPercent;
         final String targetUsers;
         final String conditions;
+        final int quantity;
         final boolean active;
 
-        CouponDto(String code, String description, double discountPercent, String targetUsers, String conditions, boolean active) {
+        CouponDto(String code, String description, double discountPercent, String targetUsers, String conditions, int quantity, boolean active) {
             this.code = code;
             this.description = description;
             this.discountPercent = discountPercent;
             this.targetUsers = targetUsers;
             this.conditions = conditions;
+            this.quantity = quantity;
             this.active = active;
         }
     }
@@ -326,6 +364,7 @@ public final class CustomerAccountStore {
                         dto.discountPercent,
                         dto.targetUsers,
                         dto.conditions,
+                        dto.quantity,
                         dto.active
                 ));
             }
@@ -339,6 +378,7 @@ public final class CustomerAccountStore {
                     10,
                     "Khách hàng mới",
                     "Đơn từ 150,000đ",
+                    500,
                     true
             ));
             coupons.add(new DiscountCoupon(
@@ -347,16 +387,17 @@ public final class CustomerAccountStore {
                     15,
                     "Thành viên VIP",
                     "Đơn từ 300,000đ",
+                    300,
                     true
             ));
             changed = true;
         }
 
-        changed |= ensureSampleCoupon("ALL5", "Giảm 5% cho mọi tài khoản", 5, "Tất cả", "Đơn từ 50,000đ", true);
-        changed |= ensureSampleCoupon("SAVE12", "Giảm 12% khi mua đơn trung bình", 12, "Tất cả", "Đơn từ 200,000đ", true);
-        changed |= ensureSampleCoupon("BIG25", "Giảm mạnh cho đơn lớn", 25, "Tất cả", "Đơn từ 700,000đ", true);
-        changed |= ensureSampleCoupon("STUDENT8", "Ưu đãi học sinh sinh viên", 8, "Tất cả", "Đơn từ 100,000đ", true);
-        changed |= ensureSampleCoupon("INACTIVE15", "Mã thử trạng thái tắt", 15, "Tất cả", "Đơn từ 120,000đ", false);
+        changed |= ensureSampleCoupon("ALL5", "Giảm 5% cho mọi tài khoản", 5, "Tất cả", "Đơn từ 50,000đ", 1000, true);
+        changed |= ensureSampleCoupon("SAVE12", "Giảm 12% khi mua đơn trung bình", 12, "Tất cả", "Đơn từ 200,000đ", 600, true);
+        changed |= ensureSampleCoupon("BIG25", "Giảm mạnh cho đơn lớn", 25, "Tất cả", "Đơn từ 700,000đ", 150, true);
+        changed |= ensureSampleCoupon("STUDENT8", "Ưu đãi học sinh sinh viên", 8, "Tất cả", "Đơn từ 100,000đ", 800, true);
+        changed |= ensureSampleCoupon("INACTIVE15", "Mã thử trạng thái tắt", 15, "Tất cả", "Đơn từ 120,000đ", 0, false);
 
         if (changed) {
             persist();
@@ -371,14 +412,19 @@ public final class CustomerAccountStore {
             double discountPercent,
             String targetUsers,
             String conditions,
+            int quantity,
             boolean active
     ) {
         for (DiscountCoupon coupon : coupons) {
             if (coupon.codeProperty().get().equalsIgnoreCase(code)) {
+                if (coupon.quantityProperty().get() <= 0 && quantity > 0 && coupon.activeProperty().get()) {
+                    coupon.quantityProperty().set(quantity);
+                    persist();
+                }
                 return false;
             }
         }
-        coupons.add(new DiscountCoupon(code, description, discountPercent, targetUsers, conditions, active));
+        coupons.add(new DiscountCoupon(code, description, discountPercent, targetUsers, conditions, quantity, active));
         return true;
     }
 }

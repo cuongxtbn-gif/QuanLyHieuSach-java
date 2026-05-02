@@ -3,6 +3,7 @@ package org.example;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -26,6 +27,9 @@ public class AdminController {
 
     // Hàm dùng chung để nhúng file FXML khác vào ô bên phải
     private void loadSubPage(String fxmlFile) {
+        if (contentArea == null) {
+            return;
+        }
         try {
             Parent root = FXMLLoader.load(getClass().getResource(fxmlFile));
             contentArea.getChildren().setAll(root);
@@ -60,7 +64,12 @@ public class AdminController {
         Optional<ButtonType> result = alert.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
             try {
-                Stage stage = (Stage) contentArea.getScene().getWindow();
+                Stage stage;
+                if (contentArea != null && contentArea.getScene() != null) {
+                    stage = (Stage) contentArea.getScene().getWindow();
+                } else {
+                    stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+                }
                 Parent root = FXMLLoader.load(getClass().getResource("/dang-nhap.fxml"));
                 stage.setScene(new Scene(root));
                 stage.setTitle("Đăng nhập - BOOKSTORE");
@@ -68,5 +77,28 @@ public class AdminController {
                 e.printStackTrace();
             }
         }
+    }
+    @FXML
+    private void goToVoucher(ActionEvent event) {
+        try {
+            // Load thẳng file FXML của trang mã giảm giá
+            Parent voucherRoot = FXMLLoader.load(getClass().getResource("/admin-ma-giam-gia.fxml"));
+
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            stage.setScene(new Scene(voucherRoot));
+            stage.setTitle("Quản lý Mã giảm giá - BOOKSTORE");
+            stage.centerOnScreen();
+        } catch (IOException e) {
+            e.printStackTrace();
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Lỗi");
+            alert.setContentText("Không thể mở file fxml: " + e.getMessage());
+            alert.show();
+        }
+    }
+
+    @FXML
+    private void handleLogout(ActionEvent event) {
+        dangXuat(event);
     }
 }

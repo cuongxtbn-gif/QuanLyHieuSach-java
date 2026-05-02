@@ -351,3 +351,30 @@
 .table-data-label {
     -fx-padding: 10;
 }
+/* Sidebar & Layout */
+.sidebar { -fx-background-color: linear-gradient(to bottom, #2c3e50, #1a252f); }
+.admin-menu-btn {
+    -fx-background-color: transparent; -fx-text-fill: #ecf0f1;
+    -fx-alignment: center-left; -fx-padding: 12 20; -fx-cursor: hand;
+}
+.active-menu { -fx-background-color: #f39c12; -fx-font-weight: bold; }
+
+/* Stat Cards */
+.stat-card {
+    -fx-background-color: white; -fx-padding: 20; -fx-pref-width: 220;
+    -fx-background-radius: 12; -fx-border-color: #e74c3c; -fx-border-width: 0 0 4 0;
+}
+.stat-label { -fx-text-fill: #7f8c8d; -fx-font-size: 11px; -fx-font-weight: bold; }
+.stat-value { -fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #e74c3c; }
+
+/* Voucher Cards */
+.voucher-card {
+    -fx-background-color: white; -fx-padding: 15; -fx-pref-width: 320;
+    -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 5);
+}
+.v-active { -fx-border-color: #e74c3c; -fx-border-width: 4 0 0 0; }
+.v-expired { -fx-border-color: #95a5a6; -fx-border-width: 4 0 0 0; -fx-opacity: 0.8; }
+.v-title { -fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #2c3e50; -fx-padding: 0 0 10 0; }
+.v-badge { -fx-text-fill: white; -fx-padding: 3 8; -fx-font-size: 10px; -fx-font-weight: bold; -fx-background-radius: 4; }
+.bg-red { -fx-background-color: #e74c3c; }
+.bg-gray { -fx-background-color: #95a5a6; }

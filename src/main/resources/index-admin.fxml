@@ -20,7 +20,7 @@
                 <Button maxWidth="Infinity" styleClass="admin-menu-btn, active-menu" text="📊 Thống kê Doanh thu" />
                 <Button maxWidth="Infinity" styleClass="admin-menu-btn" text="📚 Quản lý Sách" />
                 <Button maxWidth="Infinity" styleClass="admin-menu-btn" text="📦 Duyệt Đơn hàng" />
-                <Button maxWidth="Infinity" styleClass="admin-menu-btn" text="🎟️ Quản lý Mã giảm giá" />
+                <Button onAction="#goToVoucher" maxWidth="Infinity" styleClass="admin-menu-btn" text="🎟️ Quản lý Mã giảm giá" />
                 <Button maxWidth="Infinity" styleClass="admin-menu-btn" text="👥 Nhà cung cấp" />
 
                 <Region VBox.vgrow="ALWAYS" />

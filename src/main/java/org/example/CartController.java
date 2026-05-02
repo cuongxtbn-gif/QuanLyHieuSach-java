@@ -16,8 +16,10 @@ import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 public class CartController {
 
@@ -36,6 +38,7 @@ public class CartController {
 
     // Thanh toán & Voucher
     @FXML private HBox voucherContainer;
+    @FXML private ComboBox<String> cmbAvailableCoupons;
     @FXML private Button btnApplyVoucher;
     @FXML private TextField txtCouponCode;
     @FXML private CheckBox checkSelectAllBottom;
@@ -68,6 +71,7 @@ public class CartController {
     private DiscountCoupon appliedCoupon;
     private double currentTotalToPay = 0;
     private final DecimalFormat formatter = new DecimalFormat("#,###đ");
+    private final Map<String, String> couponLabelToCode = new HashMap<>();
 
     @FXML
     public void initialize() {
@@ -81,6 +85,7 @@ public class CartController {
         setupCartTable();
         setupTrackingTable();
         setupEvents();
+        refreshAvailableCoupons();
         calculateTotal();
     }
 
@@ -246,10 +251,6 @@ public class CartController {
         });
 
         btnApplyVoucher.setOnAction(e -> {
-            if (!UserSession.isLogged()) {
-                showAlert(Alert.AlertType.WARNING, "Cảnh báo", "Vui lòng đăng nhập để dùng voucher!");
-                return;
-            }
             if (getSelectedItemsCount() == 0) {
                 showAlert(Alert.AlertType.WARNING, "Cảnh báo", "Vui lòng chọn sản phẩm trước khi áp dụng voucher!");
                 return;
@@ -265,6 +266,10 @@ public class CartController {
                 showAlert(Alert.AlertType.ERROR, "Không hợp lệ", "Mã giảm giá không tồn tại hoặc đã ngừng hoạt động.");
                 return;
             }
+            if (found.quantityProperty().get() <= 0) {
+                showAlert(Alert.AlertType.WARNING, "Hết lượt", "Mã giảm giá này đã hết số lượng sử dụng.");
+                return;
+            }
             if (!isCouponEligible(found)) {
                 showAlert(Alert.AlertType.WARNING, "Không đủ điều kiện", "Tài khoản hoặc điều kiện đơn hàng chưa phù hợp mã này.");
                 return;
@@ -276,6 +281,19 @@ public class CartController {
             btnApplyVoucher.setStyle("-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold;");
             calculateTotal();
         });
+
+        if (cmbAvailableCoupons != null) {
+            cmbAvailableCoupons.setOnAction(e -> {
+                String label = cmbAvailableCoupons.getSelectionModel().getSelectedItem();
+                if (label == null || txtCouponCode == null) {
+                    return;
+                }
+                String code = couponLabelToCode.get(label);
+                if (code != null) {
+                    txtCouponCode.setText(code);
+                }
+            });
+        }
 
         checkSelectAllBottom.setOnAction(e -> {
             boolean isChecked = checkSelectAllBottom.isSelected();
@@ -355,6 +373,14 @@ public class CartController {
         LocalDateTime placedAt = LocalDateTime.now();
         String purchasedItems = buildPurchasedItemsSummary();
 
+        if (isVoucherApplied) {
+            String codeUsed = appliedCoupon == null ? null : appliedCoupon.codeProperty().get();
+            if (codeUsed != null && !CustomerAccountStore.consumeCoupon(codeUsed)) {
+                showAlert(Alert.AlertType.WARNING, "Voucher không còn khả dụng", "Mã giảm giá đã hết lượt, vui lòng thử lại với mã khác.");
+                return;
+            }
+        }
+
         userOrders.add(0, new Order(orderId, user, purchasedItems, placedAt, currentTotalToPay, "Chờ xác nhận"));
 
         List<CartItem> itemsToRemove = new ArrayList<>();
@@ -373,6 +399,7 @@ public class CartController {
             btnApplyVoucher.setStyle("-fx-background-color: #e67e22; -fx-text-fill: white; -fx-font-weight: bold;");
         }
         checkSelectAllBottom.setSelected(false);
+        refreshAvailableCoupons();
         calculateTotal();
 
         modalOverlay.setVisible(false);
@@ -402,7 +429,7 @@ public class CartController {
 
     private DiscountCoupon findCoupon(String code) {
         for (DiscountCoupon coupon : CustomerAccountStore.getCoupons()) {
-            if (coupon.codeProperty().get().equalsIgnoreCase(code)) {
+            if (coupon.codeProperty().get().equalsIgnoreCase(code) && coupon.quantityProperty().get() > 0) {
                 return coupon;
             }
         }
@@ -447,6 +474,25 @@ public class CartController {
 
     private String safeLower(String input) {
         return input == null ? "" : input.toLowerCase(Locale.ROOT);
+    }
+
+    private void refreshAvailableCoupons() {
+        if (cmbAvailableCoupons == null) {
+            return;
+        }
+        couponLabelToCode.clear();
+        List<String> labels = new ArrayList<>();
+        for (DiscountCoupon coupon : CustomerAccountStore.getCoupons()) {
+            if (!coupon.activeProperty().get() || coupon.quantityProperty().get() <= 0) {
+                continue;
+            }
+            String label = coupon.codeProperty().get()
+                    + " - " + coupon.discountPercentProperty().get() + "%"
+                    + " | Điều kiện: " + coupon.conditionsProperty().get();
+            labels.add(label);
+            couponLabelToCode.put(label, coupon.codeProperty().get());
+        }
+        cmbAvailableCoupons.getItems().setAll(labels);
     }
 
     private void showAlert(Alert.AlertType type, String title, String content) {
