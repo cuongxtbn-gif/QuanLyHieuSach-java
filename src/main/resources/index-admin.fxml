@@ -11,6 +11,13 @@
                 <Label text="Hệ thống quản trị nội bộ" style="-fx-font-size: 12px; -fx-text-fill: #bdc3c7;"/>
             </VBox>
 
+            <VBox spacing="8" VBox.vgrow="ALWAYS">
+                <padding><Insets left="15" right="15" top="20" /></padding>
+                <Button maxWidth="Infinity" styleClass="admin-menu-btn, active-menu" text="📊 Thống kê Doanh thu" />
+                <Button maxWidth="Infinity" styleClass="admin-menu-btn" text="📚 Quản lý Sách" />
+                <Button maxWidth="Infinity" styleClass="admin-menu-btn" text="📦 Duyệt Đơn hàng" />
+                <Button maxWidth="Infinity" styleClass="admin-menu-btn" text="🎟️ Quản lý Mã giảm giá" />
+                <Button onAction="#moTrangNhaCungCap" maxWidth="Infinity" styleClass="admin-menu-btn" text="👥 Nhà cung cấp" />
             <VBox spacing="10" style="-fx-padding: 20 15 0 15;">
                 <Button text="📊 Thống kê Doanh thu" onAction="#moTrangThongKe" styleClass="admin-btn" maxWidth="Infinity" alignment="BASELINE_LEFT"/>
                 <Button text="📚 Quản lý Sách" onAction="#moTrangQuanLySach" styleClass="admin-btn" maxWidth="Infinity" alignment="BASELINE_LEFT"/>

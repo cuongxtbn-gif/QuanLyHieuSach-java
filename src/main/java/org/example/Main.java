@@ -11,7 +11,8 @@ public class Main extends Application {
     @Override
     public void start(Stage stage) throws IOException {
 
-        FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/dang-nhap.fxml"));;
+        // Đã xóa dấu chấm phẩy thừa ở cuối dòng
+        FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/dang-nhap.fxml"));
 
         // Tạo một cửa sổ (Scene) với kích thước rộng 1000px, cao 700px
         Scene scene = new Scene(fxmlLoader.load(), 1000, 700);

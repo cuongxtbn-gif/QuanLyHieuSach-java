@@ -1,5 +1,10 @@
 package org.example;
 
+// CÁC DÒNG IMPORT ĐÃ ĐƯỢC BỔ SUNG ĐẦY ĐỦ
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -69,9 +74,34 @@ public class AdminController {
                 Parent root = FXMLLoader.load(getClass().getResource("/dang-nhap.fxml"));
                 stage.setScene(new Scene(root));
                 stage.setTitle("Đăng nhập - BOOKSTORE");
+
+                // Khi đăng xuất thì thu nhỏ lại và đưa ra giữa màn hình là chuẩn nhất
+                stage.centerOnScreen();
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    // Đoạn code xử lý chuyển trang sang Nhà Cung Cấp
+    @FXML
+    public void moTrangNhaCungCap(ActionEvent event) {
+        try {
+            // Tải file giao diện nha-cung-cap.fxml
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/nha-cung-cap.fxml"));
+            Parent root = loader.load();
+
+            // Lấy ra cái cửa sổ (Stage) hiện tại đang hiển thị
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+
+            // ĐÃ SỬA: Chỉ thay đổi lõi giao diện (root) để giữ nguyên kích thước cửa sổ hiện tại (Fullscreen)
+            stage.getScene().setRoot(root);
+            stage.setTitle("Hệ thống Quản trị - Nhà Phân Phối");
+
+            // Xóa bỏ dòng tạo Scene mới (1000, 700) và dòng stage.centerOnScreen() ở đây
+
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }
