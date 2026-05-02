@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<StackPane fx:controller="org.example.DangNhapController" styleClass="auth-wrapper" stylesheets="@style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+    <VBox alignment="CENTER" spacing="20" maxWidth="420">
+        <Label text="🐵 Bookstore" styleClass="auth-main-title"/>
+
+        <VBox styleClass="auth-container">
+            <TabPane tabClosingPolicy="UNAVAILABLE" styleClass="auth-tab-pane" tabMinWidth="180">
+                <Tab text="ĐĂNG NHẬP">
+                    <VBox spacing="15" styleClass="auth-body">
+                        <VBox spacing="8">
+                            <Label text="Email hoặc Tên tài khoản" styleClass="form-label"/>
+                            <TextField fx:id="txtUsername" promptText="Nhập tài khoản của bạn" styleClass="form-input"/>
+                        </VBox>
+                        <VBox spacing="8">
+                            <Label text="Mật khẩu" styleClass="form-label"/>
+                            <PasswordField fx:id="txtPassword" promptText="••••••••" styleClass="form-input"/>
+                        </VBox>
+                        <HBox alignment="CENTER_RIGHT">
+                            <Hyperlink text="Quên mật khẩu?" styleClass="forgot-pass"/>
+                        </HBox>
+                        <Button onAction="#handleLogin" text="ĐĂNG NHẬP" styleClass="btn-submit"/>
+                    </VBox>
+                </Tab>
+
+                <Tab text="TẠO TÀI KHOẢN">
+                    <VBox spacing="15" styleClass="auth-body">
+                        <VBox spacing="8"><Label text="Họ và tên" styleClass="form-label"/><TextField promptText="VD: Nguyễn Văn A" styleClass="form-input"/></VBox>
+                        <VBox spacing="8"><Label text="Email" styleClass="form-label"/><TextField promptText="Nhập email" styleClass="form-input"/></VBox>
+                        <VBox spacing="8"><Label text="Mật khẩu" styleClass="form-label"/><PasswordField promptText="Tạo mật khẩu" styleClass="form-input"/></VBox>
+                        <Button text="ĐĂNG KÝ NGAY" styleClass="btn-submit, btn-register"/>
+                    </VBox>
+                </Tab>
+            </TabPane>
+        </VBox>
+    </VBox>
+</StackPane>

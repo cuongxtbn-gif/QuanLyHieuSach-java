@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.geometry.Insets?>
+
+<ScrollPane fx:controller="org.example.HelloController" fitToWidth="true" stylesheets="@style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+    <VBox spacing="20" styleClass="body-container">
+
+        <!-- ================= HEADER ================= -->
+        <HBox alignment="CENTER_LEFT" spacing="20" styleClass="header">
+            <padding>
+                <Insets top="15" right="30" bottom="15" left="30"/>
+            </padding>
+            <Label text="🐵 BOOKSTORE" styleClass="logo"/>
+            <Region HBox.hgrow="ALWAYS" />
+            <TextField promptText="Tìm kiếm sách bạn yêu thích..." styleClass="search-input" prefWidth="300"/>
+            <HBox alignment="CENTER" spacing="15">
+                <Hyperlink text="Trang chủ" styleClass="nav-link"/>
+                <Hyperlink text="Sách" onAction="#moTrangDanhSachSach" styleClass="nav-link"/>
+                <Hyperlink text="Giỏ hàng" styleClass="nav-link"/>
+                <Hyperlink fx:id="linkAccount" text="Đăng nhập" styleClass="nav-link"/>
+                <Hyperlink text="Đăng xuất" onAction="#handleCustomerLogout" styleClass="nav-link"/>
+            </HBox>
+        </HBox>
+
+        <!-- ================= HERO SECTION ================= -->
+        <VBox alignment="CENTER" spacing="15" styleClass="hero-banner">
+            <padding>
+                <Insets top="50" right="20" bottom="50" left="20"/>
+            </padding>
+            <Label text="Khơi nguồn tri thức" styleClass="hero-title"/>
+            <Label text="Hơn 10.000 đầu sách ngoại văn, quốc ngữ và giáo trình mới nhất từ các nhà xuất bản hàng đầu." wrapText="true" styleClass="hero-description"/>
+            <Button text="Khám phá ngay" onAction="#moTrangDanhSachSach" styleClass="btn-primary"/>
+        </VBox>
+
+        <!-- ================= SÁCH MỚI CẬP NHẬT (8 CUỐN) ================= -->
+        <VBox spacing="15" styleClass="container">
+            <padding>
+                <Insets top="20" right="30" bottom="20" left="30"/>
+            </padding>
+            <HBox alignment="CENTER_LEFT" spacing="10">
+                <Region prefWidth="5" prefHeight="30" style="-fx-background-color: #2563eb;"/>
+                <Label text="Sách mới cập nhật" styleClass="section-title"/>
+            </HBox>
+
+            <!-- Khoảng cách thẻ tăng lên 30, căn giữa -->
+            <GridPane hgap="30" vgap="30" alignment="CENTER">
+                <!-- HÀNG 0 -->
+                <VBox styleClass="book-card" spacing="10" alignment="CENTER" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                    <ImageView fitWidth="180" fitHeight="250" preserveRatio="false">
+                        <image><Image url="@assets/images/ba-tuoc-monte-cristo.jpg" backgroundLoading="true"/></image>
+                    </ImageView>
+                    <Label text="Bá tước Monte Cristo" styleClass="book-title" wrapText="true"/>
+                    <Label text="185.000đ" styleClass="price"/>
+                    <Button text="Xem ngay" styleClass="btn-buy"/>
+                </VBox>
+
+                <VBox styleClass="book-card" spacing="10" alignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                    <ImageView fitWidth="180" fitHeight="250" preserveRatio="false">
+                        <image><Image url="@assets/images/giet-con-chim-nhai.jpg" backgroundLoading="true"/></image>
+                    </ImageView>
+                    <Label text="Giết con chim nhại" styleClass="book-title" wrapText="true"/>
+                    <Label text="210.000đ" styleClass="price"/>
+                    <Button text="Xem ngay" styleClass="btn-buy"/>
+                </VBox>
+
+                <VBox styleClass="book-card" spacing="10" alignment="CENTER" GridPane.columnIndex="2" GridPane.rowIndex="0">
+                    <ImageView fitWidth="180" fitHeight="250" preserveRatio="false">
+                        <image><Image url="@assets/images/hai-so-phan.jpg" backgroundLoading="true"/></image>
+                    </ImageView>
+                    <Label text="Hai số phận" styleClass="book-title" wrapText="true"/>
+                    <Label text="320.000đ" styleClass="price"/>
+                    <Button text="Xem ngay" styleClass="btn-buy"/>
+                </VBox>
+
+                <VBox styleClass="book-card" spacing="10" alignment="CENTER" GridPane.columnIndex="3" GridPane.rowIndex="0">
+                    <ImageView fitWidth="180" fitHeight="250" preserveRatio="false">
+                        <image><Image url="@assets/images/khong-gia-dinh.jpg" backgroundLoading="true"/></image>
+                    </ImageView>
+                    <Label text="Không gia đình" styleClass="book-title" wrapText="true"/>
+                    <Label text="450.000đ" styleClass="price"/>
+                    <Button text="Xem ngay" styleClass="btn-buy"/>
+                </VBox>
+
+                <!-- HÀNG 1 -->
+                <VBox styleClass="book-card" spacing="10" alignment="CENTER" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                    <ImageView fitWidth="180" fitHeight="250" preserveRatio="false">
+                        <image><Image url="@assets/images/dac-nhan-tam.jpg" backgroundLoading="true"/></image>
+                    </ImageView>
+                    <Label text="Đắc nhân tâm" styleClass="book-title" wrapText="true"/>
+                    <Label text="150.000đ" styleClass="price"/>
+                    <Button text="Xem ngay" styleClass="btn-buy"/>
+                </VBox>
+
+                <VBox styleClass="book-card" spacing="10" alignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                    <ImageView fitWidth="180" fitHeight="250" preserveRatio="false">
+                        <image><Image url="@assets/images/nha-gia-kim.jpg" backgroundLoading="true"/></image>
+                    </ImageView>
+                    <Label text="Nhà giả kim" styleClass="book-title" wrapText="true"/>
+                    <Label text="100.000đ" styleClass="price"/>
+                    <Button text="Xem ngay" styleClass="btn-buy"/>
+                </VBox>
+
+                <VBox styleClass="book-card" spacing="10" alignment="CENTER" GridPane.columnIndex="2" GridPane.rowIndex="1">
+                    <ImageView fitWidth="180" fitHeight="250" preserveRatio="false">
+                        <image><Image url="@assets/images/phia-sau-nghi-can-x.png" backgroundLoading="true"/></image>
+                    </ImageView>
+                    <Label text="Phía sau nghi can X" styleClass="book-title" wrapText="true"/>
+                    <Label text="230.000đ" styleClass="price"/>
+                    <Button text="Xem ngay" styleClass="btn-buy"/>
+                </VBox>
+
+                <VBox styleClass="book-card" spacing="10" alignment="CENTER" GridPane.columnIndex="3" GridPane.rowIndex="1">
+                    <ImageView fitWidth="180" fitHeight="250" preserveRatio="false">
+                        <image><Image url="@assets/images/rung-nauy.png" backgroundLoading="true"/></image>
+                    </ImageView>
+                    <Label text="Rừng Nauy" styleClass="book-title" wrapText="true"/>
+                    <Label text="240.000đ" styleClass="price"/>
+                    <Button text="Xem ngay" styleClass="btn-buy"/>
+                </VBox>
+            </GridPane>
+        </VBox>
+
+        <!-- ================= SÁCH ĐANG BÁN CHẠY (4 CUỐN) ================= -->
+        <VBox spacing="15" styleClass="container">
+            <padding>
+                <Insets top="20" right="30" bottom="40" left="30"/>
+            </padding>
+            <HBox alignment="CENTER_LEFT" spacing="10">
+                <Region prefWidth="5" prefHeight="30" style="-fx-background-color: #e74c3c; -fx-background-radius: 10;"/>
+                <Label text="Sách đang bán chạy 🔥" styleClass="section-title"/>
+            </HBox>
+
+            <GridPane hgap="30" vgap="30" alignment="CENTER">
+                <VBox styleClass="book-card" spacing="10" alignment="CENTER" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                    <ImageView fitWidth="180" fitHeight="250" preserveRatio="false">
+                        <image><Image url="@assets/images/bo-gia.png" backgroundLoading="true"/></image>
+                    </ImageView>
+                    <Label text="Bố Già" styleClass="book-title" wrapText="true"/>
+                    <Label text="105.000đ" styleClass="price"/>
+                    <Button text="Xem ngay" styleClass="btn-buy"/>
+                </VBox>
+
+                <VBox styleClass="book-card" spacing="10" alignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                    <ImageView fitWidth="180" fitHeight="250" preserveRatio="false">
+                        <image><Image url="@assets/images/nhung-nguoi-khon-kho.png" backgroundLoading="true"/></image>
+                    </ImageView>
+                    <Label text="Những người khốn khổ" styleClass="book-title" wrapText="true"/>
+                    <Label text="285.000đ" styleClass="price"/>
+                    <Button text="Xem ngay" styleClass="btn-buy"/>
+                </VBox>
+
+                <VBox styleClass="book-card" spacing="10" alignment="CENTER" GridPane.columnIndex="2" GridPane.rowIndex="0">
+                    <ImageView fitWidth="180" fitHeight="250" preserveRatio="false">
+                        <image><Image url="@assets/images/phia-tay-khong-co-gi-la.png" backgroundLoading="true"/></image>
+                    </ImageView>
+                    <Label text="Phía tây không có gì lạ" styleClass="book-title" wrapText="true"/>
+                    <Label text="50.000đ" styleClass="price"/>
+                    <Button text="Xem ngay" styleClass="btn-buy"/>
+                </VBox>
+
+                <VBox styleClass="book-card" spacing="10" alignment="CENTER" GridPane.columnIndex="3" GridPane.rowIndex="0">
+                    <ImageView fitWidth="180" fitHeight="250" preserveRatio="false">
+                        <image><Image url="@assets/images/tuoi-tre-dang-gia-bao-nhieu.png" backgroundLoading="true"/></image>
+                    </ImageView>
+                    <Label text="Tuổi trẻ đáng giá bao nhiêu" styleClass="book-title" wrapText="true"/>
+                    <Label text="80.000đ" styleClass="price"/>
+                    <Button text="Xem ngay" styleClass="btn-buy"/>
+                </VBox>
+            </GridPane>
+        </VBox>
+
+    </VBox>
+</ScrollPane>

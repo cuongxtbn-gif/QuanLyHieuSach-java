@@ -1,0 +1,336 @@
+/* =========================================================
+   1. NỀN MÓNG VÀ CÀI ĐẶT CHUNG
+   ========================================================= */
+/* Làm cho cuộn trang hòa vào nền chung */
+.scroll-pane {
+    -fx-background: #f8f9fa;
+    -fx-border-color: transparent;
+}
+
+/* Nền xám nhạt cho toàn bộ trang */
+.body-container {
+    -fx-background-color: #f8f9fa;
+    -fx-font-family: "Segoe UI", Tahoma, sans-serif;
+}
+
+/* =========================================================
+   2. THANH MENU (HEADER)
+   ========================================================= */
+.header {
+    -fx-background-color: #2c3e50;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 5, 0, 0, 2); /* Thay cho box-shadow */
+}
+
+.logo {
+    -fx-font-size: 32px; /* Thu nhỏ một chút so với web để vừa cửa sổ Desktop */
+    -fx-font-weight: bold;
+    -fx-text-fill: #f39c12; /* Thay cho color */
+}
+
+/* Ô tìm kiếm */
+.search-input {
+    -fx-background-radius: 20; /* Bo góc */
+    -fx-border-radius: 20;
+    -fx-padding: 8 15;
+    -fx-background-color: white;
+    -fx-border-color: transparent;
+}
+
+.search-input:focused {
+    /* Hiệu ứng tỏa sáng khi gõ chữ */
+    -fx-effect: dropshadow(gaussian, rgba(243, 156, 18, 0.6), 8, 0, 0, 0);
+}
+
+/* Các đường link trên Menu */
+.nav-link {
+    -fx-text-fill: white;
+    -fx-font-size: 15px;
+    -fx-underline: false; /* Không gạch chân */
+    -fx-border-color: transparent; /* Xóa khung viền rác khi click chuột vào */
+}
+
+.nav-link:hover {
+    -fx-text-fill: #f39c12;
+}
+
+/* =========================================================
+   3. PHẦN GIỚI THIỆU LỚN (HERO BANNER)
+   ========================================================= */
+.hero-banner {
+    -fx-background-color: #2c3e50;
+    -fx-background-radius: 15;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 20, 0, 0, 10);
+}
+
+.hero-title {
+    -fx-font-size: 45px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #f1c40f;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 3, 0, 3, 3);
+}
+
+.hero-description {
+    -fx-font-size: 18px;
+    -fx-text-fill: rgba(255, 255, 255, 0.9);
+}
+
+.btn-cta {
+    -fx-background-color: #f39c12;
+    -fx-text-fill: #2c3e50;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 30;
+    -fx-padding: 12 30;
+    -fx-cursor: hand;
+}
+
+.btn-cta:hover {
+    -fx-background-color: white;
+    -fx-effect: dropshadow(gaussian, rgba(243, 156, 18, 0.4), 12, 0, 0, 6);
+}
+
+/* =========================================================
+   4. KHU VỰC DANH SÁCH SẢN PHẨM
+   ========================================================= */
+.section-title {
+    -fx-font-size: 24px;
+    -fx-text-fill: #2c3e50;
+    -fx-font-weight: bold;
+}
+
+/* Thẻ (Card) hiển thị một cuốn sách */
+.book-card {
+    -fx-background-color: white;
+    -fx-background-radius: 15;
+    -fx-border-radius: 15;
+    -fx-border-color: #f0f0f0;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 15, 0, 0, 5);
+    -fx-padding: 15; /* Thêm lề trong để tách ảnh khỏi viền */
+}
+
+/* Khi di chuột vào thẻ sách */
+.book-card:hover {
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 20, 0, 0, 10);
+    -fx-border-color: #f39c12;
+}
+
+.book-title {
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2c3e50;
+}
+
+.price {
+    -fx-font-size: 16px;
+    -fx-text-fill: #e74c3c;
+    -fx-font-weight: bold;
+}
+
+.btn-buy {
+    -fx-background-color: #2c3e50;
+    -fx-text-fill: white;
+    -fx-background-radius: 8;
+    -fx-padding: 8 20;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+}
+
+.btn-buy:hover {
+    -fx-background-color: #f39c12;
+    -fx-text-fill: #2c3e50;
+    -fx-effect: dropshadow(gaussian, rgba(243, 156, 18, 0.4), 10, 0, 0, 5);
+}
+/* =========================================================
+   5. CSS CHO TRANG ĐĂNG NHẬP / ĐĂNG KÝ
+   ========================================================= */
+.auth-wrapper {
+    -fx-background-color: linear-gradient(to bottom right, #f4f7f6, #e0e8e4);
+    -fx-padding: 50;
+}
+
+.auth-main-title {
+    -fx-font-size: 36px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2c3e50;
+}
+
+/* Khung viền đổ bóng cho form */
+.auth-container {
+    -fx-background-color: white;
+    -fx-background-radius: 15;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 35, 0, 0, 15);
+    -fx-pref-width: 420;
+    -fx-max-width: 420;
+}
+
+/* Ép TabPane của JavaFX hiển thị giống thẻ div HTML */
+.auth-tab-pane .tab-header-area {
+    -fx-padding: 0;
+}
+.auth-tab-pane .tab-header-background {
+    -fx-background-color: #f8f9fa;
+    -fx-background-radius: 15 15 0 0;
+}
+.auth-tab-pane .tab {
+    -fx-background-color: transparent;
+    -fx-pref-width: 210; /* Độ rộng của 1 tab (420 chia đôi) */
+    -fx-pref-height: 55;
+    -fx-padding: 0;
+}
+.auth-tab-pane .tab-label {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #7f8c8d;
+}
+
+/* Tab đang được chọn (active) */
+.auth-tab-pane .tab:selected {
+    -fx-background-color: white;
+    -fx-border-color: transparent transparent #f39c12 transparent;
+    -fx-border-width: 0 0 3 0;
+}
+.auth-tab-pane .tab:selected .tab-label {
+    -fx-text-fill: #f39c12;
+}
+
+.auth-body {
+    -fx-padding: 35 30 35 30;
+    -fx-background-color: white;
+    -fx-background-radius: 0 0 15 15;
+}
+
+.form-label {
+    -fx-text-fill: #2c3e50;
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+}
+
+.form-input {
+    -fx-padding: 12 15;
+    -fx-border-color: #dcdde1;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-font-size: 15px;
+    -fx-background-color: white;
+}
+.form-input:focused {
+    -fx-border-color: #f39c12;
+    -fx-effect: dropshadow(gaussian, rgba(243, 156, 18, 0.2), 8, 0, 0, 0);
+}
+
+.btn-submit {
+    -fx-background-color: #2c3e50;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 16px;
+    -fx-padding: 14;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+    -fx-pref-width: 360; /* Phủ kín chiều ngang */
+}
+.btn-submit:hover {
+    -fx-background-color: #f39c12;
+    -fx-effect: dropshadow(gaussian, rgba(243, 156, 18, 0.3), 15, 0, 0, 5);
+}
+
+.btn-register {
+    -fx-background-color: #27ae60;
+}
+.btn-register:hover {
+    -fx-background-color: #2ecc71;
+    -fx-effect: dropshadow(gaussian, rgba(46, 204, 113, 0.3), 15, 0, 0, 5);
+}
+
+.forgot-pass {
+    -fx-text-fill: #e74c3c;
+    -fx-font-size: 13px;
+    -fx-underline: false;
+    -fx-border-color: transparent; /* Xóa khung vuông khi click */
+}
+.forgot-pass:hover {
+    -fx-underline: true;
+}
+
+.back-home {
+    -fx-text-fill: #7f8c8d;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-border-color: transparent;
+}
+.back-home:hover {
+    -fx-text-fill: #2c3e50;
+}
+
+/* ================= SIDEBAR ADMIN ================= */
+.sidebar {
+    -fx-background-color: linear-gradient(to bottom, #2c3e50, #1a252f);
+}
+.sidebar-logo {
+    -fx-text-fill: #f39c12;
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+}
+.sidebar-sub {
+    -fx-text-fill: #bdc3c7;
+    -fx-font-size: 11px;
+}
+.admin-menu-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: #ecf0f1;
+    -fx-alignment: center-left;
+    -fx-padding: 15 20;
+    -fx-font-size: 15px;
+    -fx-background-radius: 8;
+}
+.admin-menu-btn:hover, .active-menu {
+    -fx-background-color: #f39c12;
+    -fx-text-fill: white;
+}
+.logout-btn {
+    -fx-border-color: rgba(231, 76, 60, 0.5);
+    -fx-text-fill: #e74c3c;
+    -fx-background-color: rgba(231, 76, 60, 0.1);
+}
+
+/* ================= CONTENT ADMIN ================= */
+.main-content {
+    -fx-background-color: #f4f7f6;
+}
+.page-header {
+    -fx-background-color: white;
+    -fx-padding: 20 30;
+    -fx-background-radius: 10;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 4);
+}
+.page-title {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2c3e50;
+}
+.stat-card {
+    -fx-background-color: white;
+    -fx-padding: 25;
+    -fx-background-radius: 12;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 15, 0, 0, 5);
+}
+.stat-card Label { -fx-font-size: 12px; -fx-text-fill: #7f8c8d; }
+.stat-value { -fx-font-size: 28px; -fx-font-weight: bold; }
+
+.blue-border { -fx-border-color: transparent transparent #3498db transparent; -fx-border-width: 0 0 4 0; }
+.green-border { -fx-border-color: transparent transparent #2ecc71 transparent; -fx-border-width: 0 0 4 0; }
+.yellow-border { -fx-border-color: transparent transparent #f1c40f transparent; -fx-border-width: 0 0 4 0; }
+.red-border { -fx-border-color: transparent transparent #e74c3c transparent; -fx-border-width: 0 0 4 0; }
+
+.table-container {
+    -fx-background-color: white;
+    -fx-padding: 25;
+    -fx-background-radius: 12;
+}
+.section-heading {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-border-color: transparent transparent transparent #f39c12;
+    -fx-border-width: 0 0 0 4;
+    -fx-padding: 0 0 0 15;
+}
