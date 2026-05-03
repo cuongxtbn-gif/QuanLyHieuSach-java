@@ -322,6 +322,7 @@ public class SupplierController {
         for (SupplierInvoiceStore.InvoiceItem it : savedItems) {
             BookCatalog.findById(it.getBookId()).ifPresent(s -> s.setTonKho(s.getTonKho() + it.getQuantity()));
         }
+        BookCatalog.persistNow();
 
         tableSuppliers.refresh();
         updateStats(supplierList);

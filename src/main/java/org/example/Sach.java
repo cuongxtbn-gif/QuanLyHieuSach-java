@@ -1,6 +1,9 @@
 package org.example;
 
-public class Sach {
+import java.io.Serializable;
+
+public class Sach implements Serializable {
+    private static final long serialVersionUID = 1L;
     private String id, tenSach, hinhAnh, tacGia, theLoai, nhaXuatBan, moTa;
     private double giaBan;
     private int soTrang;

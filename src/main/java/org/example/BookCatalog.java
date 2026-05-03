@@ -1,33 +1,63 @@
 package org.example;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
+import java.io.Serializable;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
  * Single source of truth for the book catalog (title, author, category search).
+ * Lưu ra ~/.quanlyhieusach/book-catalog.ser để giữ sách/tồn kho/xóa mềm giữa các lần chạy.
  */
 public final class BookCatalog {
 
+    private static final Path DATA_DIR = Path.of(System.getProperty("user.home"), ".quanlyhieusach");
+    private static final Path DATA_FILE = DATA_DIR.resolve("book-catalog.ser");
+    private static final Path TEMP_FILE = DATA_DIR.resolve("book-catalog.ser.tmp");
+
+    /** Mã sách có trong bộ dữ liệu mặc định (code) — dùng khi xóa vĩnh viễn để không “bật lại” sau cập nhật app. */
+    private static final Set<String> SEED_IDS = seedIds();
+
     private static final List<Sach> allBooks = new ArrayList<>();
+    private static final Set<String> removedSeedIds = new HashSet<>();
     private static boolean initialized = false;
 
     private BookCatalog() {}
 
+    private static Set<String> seedIds() {
+        HashSet<String> ids = new HashSet<>();
+        for (Sach s : buildCatalog()) {
+            if (s.getId() != null) {
+                ids.add(s.getId());
+            }
+        }
+        return Collections.unmodifiableSet(ids);
+    }
+
     public static synchronized List<Sach> getAllBooks() {
         if (!initialized) {
-            allBooks.clear();
-            allBooks.addAll(buildCatalog());
+            hydrateFromDiskAndSeed();
             initialized = true;
         }
-        // Trả view read-only, nhưng backing list vẫn mutable qua addBook/removeBook.
         return Collections.unmodifiableList(allBooks);
     }
 
-    public static Optional<Sach> findById(String id) {
+    public static synchronized Optional<Sach> findById(String id) {
         if (id == null) return Optional.empty();
         return getAllBooks().stream().filter(s -> id.equals(s.getId())).findFirst();
     }
@@ -40,10 +70,13 @@ public final class BookCatalog {
         if (sach == null) return false;
         String id = sach.getId();
         if (id == null || id.isBlank()) return false;
-        // Ensure catalog initialized
         getAllBooks();
         if (findById(id).isPresent()) return false;
-        return allBooks.add(sach);
+        boolean ok = allBooks.add(sach);
+        if (ok) {
+            persistSnapshot();
+        }
+        return ok;
     }
 
     /** Xóa hẳn khỏi danh mục (dùng sau khi xóa vĩnh viễn trong admin). */
@@ -52,7 +85,109 @@ public final class BookCatalog {
         getAllBooks();
         String id = sach.getId();
         if (id == null || id.isBlank()) return false;
-        return allBooks.removeIf(s -> id.equals(s.getId()));
+        boolean removed = allBooks.removeIf(s -> id.equals(s.getId()));
+        if (removed) {
+            if (SEED_IDS.contains(id)) {
+                removedSeedIds.add(id);
+            }
+            persistSnapshot();
+        }
+        return removed;
+    }
+
+    /** Ghi lại danh mục sau khi sửa tồn kho / thuộc tính tại chỗ (không qua add/remove). */
+    public static synchronized void persistNow() {
+        if (!initialized) {
+            getAllBooks();
+        }
+        persistSnapshot();
+    }
+
+    private static void hydrateFromDiskAndSeed() {
+        allBooks.clear();
+        removedSeedIds.clear();
+        List<Sach> seed = buildCatalog();
+        CatalogSnapshot snap = loadFromDisk();
+        if (snap == null) {
+            allBooks.addAll(seed);
+            return;
+        }
+        removedSeedIds.addAll(snap.removedSeedIds);
+        Map<String, Sach> persistedById = new LinkedHashMap<>();
+        for (Sach s : snap.books) {
+            if (s != null && s.getId() != null && !s.getId().isBlank()) {
+                persistedById.put(s.getId(), s);
+            }
+        }
+        Set<String> used = new HashSet<>();
+        for (Sach s : seed) {
+            String id = s.getId();
+            if (id == null || removedSeedIds.contains(id)) {
+                continue;
+            }
+            Sach p = persistedById.get(id);
+            if (p != null) {
+                allBooks.add(p);
+            } else {
+                allBooks.add(s);
+            }
+            used.add(id);
+        }
+        for (Sach s : snap.books) {
+            if (s == null || s.getId() == null) {
+                continue;
+            }
+            String id = s.getId();
+            if (removedSeedIds.contains(id)) {
+                continue;
+            }
+            if (!used.contains(id)) {
+                allBooks.add(s);
+                used.add(id);
+            }
+        }
+    }
+
+    private static void persistSnapshot() {
+        try {
+            Files.createDirectories(DATA_DIR);
+            CatalogSnapshot out = new CatalogSnapshot();
+            out.books.addAll(allBooks);
+            out.removedSeedIds.addAll(removedSeedIds);
+            try (OutputStream os = Files.newOutputStream(TEMP_FILE);
+                 ObjectOutputStream oos = new ObjectOutputStream(os)) {
+                oos.writeObject(out);
+            }
+            try {
+                Files.move(TEMP_FILE, DATA_FILE, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
+            } catch (IOException ignored) {
+                Files.move(TEMP_FILE, DATA_FILE, StandardCopyOption.REPLACE_EXISTING);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static CatalogSnapshot loadFromDisk() {
+        if (!Files.isRegularFile(DATA_FILE)) {
+            return null;
+        }
+        try (InputStream in = Files.newInputStream(DATA_FILE);
+             ObjectInputStream ois = new ObjectInputStream(in)) {
+            Object o = ois.readObject();
+            if (o instanceof CatalogSnapshot doc) {
+                return doc;
+            }
+        } catch (ClassNotFoundException | IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private static final class CatalogSnapshot implements Serializable {
+        private static final long serialVersionUID = 1L;
+        final ArrayList<Sach> books = new ArrayList<>();
+        final HashSet<String> removedSeedIds = new HashSet<>();
     }
 
     /**
