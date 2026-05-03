@@ -252,10 +252,9 @@ public class ChiTietSachController {
         String orderId = "#ORD-" + (userOrders.size() + 1) + "-" + randomStr;
         LocalDateTime placedAt = LocalDateTime.now();
 
-        String purchasedItems = sachChon.getTenSach() + " x" + qty + " - " + moneyFmt.format(total);
+        String purchasedItems = OrderStockUtil.formatOrderLine(
+                sachChon.getId(), sachChon.getTenSach(), qty, moneyFmt.format(total));
         userOrders.add(0, new CartController.Order(orderId, user, purchasedItems, placedAt, total, "Chờ xác nhận"));
-        // Trừ tồn kho ngay khi đặt (đảm bảo trạng thái "hết hàng" cập nhật)
-        sachChon.setTonKho(sachChon.getTonKho() - qty);
         if (lblTonKhoDetail != null) {
             lblTonKhoDetail.setText(sachChon.getTonKho() > 0 ? (sachChon.getTonKho() + " cuốn") : "Đã hết hàng");
         }

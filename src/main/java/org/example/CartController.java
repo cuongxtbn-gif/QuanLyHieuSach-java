@@ -2,12 +2,14 @@ package org.example;
 
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
+import javafx.util.Callback;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
@@ -37,8 +39,9 @@ public class CartController {
 
     // Thanh toán & Voucher
     @FXML private HBox voucherContainer;
+    @FXML private ComboBox<DiscountCoupon> cbCouponChoice;
+    @FXML private Button btnClearCoupon;
     @FXML private Button btnApplyVoucher;
-    @FXML private TextField txtCouponCode;
     @FXML private CheckBox checkSelectAllBottom;
     @FXML private Label lblTotalPrice;
     @FXML private Button btnShowCheckout;
@@ -81,6 +84,7 @@ public class CartController {
 
         setupCartTable();
         setupTrackingTable();
+        setupCouponCombo();
         setupEvents();
         calculateTotal();
     }
@@ -255,28 +259,34 @@ public class CartController {
                 showAlert(Alert.AlertType.WARNING, "Cảnh báo", "Vui lòng chọn sản phẩm trước khi áp dụng voucher!");
                 return;
             }
-            String code = txtCouponCode == null ? "" : txtCouponCode.getText().trim();
-            if (code.isEmpty()) {
-                showAlert(Alert.AlertType.WARNING, "Cảnh báo", "Vui lòng nhập mã giảm giá.");
+            DiscountCoupon selected = cbCouponChoice == null ? null : cbCouponChoice.getSelectionModel().getSelectedItem();
+            if (selected == null) {
+                showAlert(Alert.AlertType.WARNING, "Cảnh báo", "Vui lòng chọn một mã giảm giá trong danh sách.");
                 return;
             }
-
-            DiscountCoupon found = findCoupon(code);
-            if (found == null || !found.activeProperty().get()) {
-                showAlert(Alert.AlertType.ERROR, "Không hợp lệ", "Mã giảm giá không tồn tại hoặc đã ngừng hoạt động.");
+            if (!selected.activeProperty().get()) {
+                showAlert(Alert.AlertType.ERROR, "Không hợp lệ", "Mã này đã ngừng hoạt động.");
+                reloadCouponComboItems();
                 return;
             }
-            if (!isCouponEligible(found)) {
+            if (!isCouponEligible(selected)) {
                 showAlert(Alert.AlertType.WARNING, "Không đủ điều kiện", "Tài khoản hoặc điều kiện đơn hàng chưa phù hợp mã này.");
                 return;
             }
 
-            appliedCoupon = found;
+            appliedCoupon = selected;
             isVoucherApplied = true;
-            btnApplyVoucher.setText("Đã áp dụng (" + found.discountPercentProperty().get() + "%)");
+            btnApplyVoucher.setText("Đã áp dụng (" + selected.discountPercentProperty().get() + "%)");
             btnApplyVoucher.setStyle("-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold;");
             calculateTotal();
         });
+
+        if (btnClearCoupon != null) {
+            btnClearCoupon.setOnAction(e -> {
+                resetCouponUi();
+                calculateTotal();
+            });
+        }
 
         checkSelectAllBottom.setOnAction(e -> {
             boolean isChecked = checkSelectAllBottom.isSelected();
@@ -322,10 +332,7 @@ public class CartController {
         }
 
         if (count == 0 && isVoucherApplied) {
-            isVoucherApplied = false;
-            appliedCoupon = null;
-            btnApplyVoucher.setText("Áp dụng");
-            btnApplyVoucher.setStyle("-fx-background-color: #e67e22; -fx-text-fill: white; -fx-font-weight: bold;");
+            resetCouponUi();
         }
 
         if (isVoucherApplied && total > 0) {
@@ -380,11 +387,7 @@ public class CartController {
         LocalDateTime placedAt = LocalDateTime.now();
         String purchasedItems = buildPurchasedItemsSummary();
 
-        // 2) Trừ tồn kho (sau khi đã validate)
-        for (CartItem item : cartList) {
-            if (!item.isSelected()) continue;
-            resolveSach(item).ifPresent(s -> s.setTonKho(s.getTonKho() - item.getQuantity()));
-        }
+        // Tồn kho chỉ trừ khi admin duyệt đơn (OrderStockUtil sau khi validate).
 
         userOrders.add(0, new Order(orderId, user, purchasedItems, placedAt, currentTotalToPay, "Chờ xác nhận"));
 
@@ -395,13 +398,7 @@ public class CartController {
         cartList.removeAll(itemsToRemove);
 
         if (isVoucherApplied) {
-            isVoucherApplied = false;
-            appliedCoupon = null;
-            if (txtCouponCode != null) {
-                txtCouponCode.clear();
-            }
-            btnApplyVoucher.setText("Áp dụng");
-            btnApplyVoucher.setStyle("-fx-background-color: #e67e22; -fx-text-fill: white; -fx-font-weight: bold;");
+            resetCouponUi();
         }
         checkSelectAllBottom.setSelected(false);
         calculateTotal();
@@ -441,19 +438,84 @@ public class CartController {
         List<String> lines = new ArrayList<>();
         for (CartItem item : cartList) {
             if (item.isSelected()) {
-                lines.add(item.productNameProperty().get() + " x" + item.getQuantity() + " - " + formatter.format(item.getTotalPrice()));
+                String id = item.bookIdProperty() == null ? null : item.bookIdProperty().get();
+                String name = item.productNameProperty().get();
+                lines.add(OrderStockUtil.formatOrderLine(id, name, item.getQuantity(), formatter.format(item.getTotalPrice())));
             }
         }
         return String.join(" | ", lines);
     }
 
-    private DiscountCoupon findCoupon(String code) {
-        for (DiscountCoupon coupon : CustomerAccountStore.getCoupons()) {
-            if (coupon.codeProperty().get().equalsIgnoreCase(code)) {
-                return coupon;
+    private void setupCouponCombo() {
+        if (cbCouponChoice == null) {
+            return;
+        }
+        Callback<ListView<DiscountCoupon>, ListCell<DiscountCoupon>> cellFactory = lv -> new ListCell<>() {
+            @Override
+            protected void updateItem(DiscountCoupon c, boolean empty) {
+                super.updateItem(c, empty);
+                if (empty || c == null) {
+                    setText(null);
+                } else {
+                    setText(formatCouponChoiceLabel(c));
+                }
+            }
+        };
+        cbCouponChoice.setCellFactory(cellFactory);
+        cbCouponChoice.setButtonCell(new ListCell<>() {
+            @Override
+            protected void updateItem(DiscountCoupon c, boolean empty) {
+                super.updateItem(c, empty);
+                if (empty || c == null) {
+                    setText(null);
+                } else {
+                    setText(formatCouponChoiceLabel(c));
+                }
+            }
+        });
+        reloadCouponComboItems();
+        CustomerAccountStore.getCoupons().addListener((ListChangeListener<DiscountCoupon>) c -> reloadCouponComboItems());
+    }
+
+    private static String formatCouponChoiceLabel(DiscountCoupon c) {
+        int pct = (int) Math.round(c.discountPercentProperty().get());
+        return c.codeProperty().get() + " — " + c.descriptionProperty().get() + " (" + pct + "%)";
+    }
+
+    private void reloadCouponComboItems() {
+        if (cbCouponChoice == null) {
+            return;
+        }
+        DiscountCoupon previousSelect = cbCouponChoice.getSelectionModel().getSelectedItem();
+        ObservableList<DiscountCoupon> items = FXCollections.observableArrayList();
+        for (DiscountCoupon c : CustomerAccountStore.getCoupons()) {
+            if (c.activeProperty().get()) {
+                items.add(c);
             }
         }
-        return null;
+        cbCouponChoice.setItems(items);
+        if (isVoucherApplied && appliedCoupon != null && !items.contains(appliedCoupon)) {
+            resetCouponUi();
+            calculateTotal();
+            return;
+        }
+        if (previousSelect != null && items.contains(previousSelect)) {
+            cbCouponChoice.getSelectionModel().select(previousSelect);
+        } else if (isVoucherApplied && appliedCoupon != null && items.contains(appliedCoupon)) {
+            cbCouponChoice.getSelectionModel().select(appliedCoupon);
+        }
+    }
+
+    private void resetCouponUi() {
+        isVoucherApplied = false;
+        appliedCoupon = null;
+        if (cbCouponChoice != null) {
+            cbCouponChoice.getSelectionModel().clearSelection();
+        }
+        if (btnApplyVoucher != null) {
+            btnApplyVoucher.setText("Áp dụng");
+            btnApplyVoucher.setStyle("-fx-background-color: #e67e22; -fx-text-fill: white; -fx-font-weight: bold;");
+        }
     }
 
     private boolean isCouponEligible(DiscountCoupon coupon) {

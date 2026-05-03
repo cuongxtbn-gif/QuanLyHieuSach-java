@@ -44,6 +44,34 @@ public final class CustomerAccountStore {
 
     private CustomerAccountStore() {}
 
+    /**
+     * Trả về khóa user đã lưu (giỏ/đơn) nếu trùng email không phân biệt hoa thường; không thì chuẩn hóa email.
+     */
+    public static String resolveCustomerKey(String emailOrLogin) {
+        if (emailOrLogin == null || emailOrLogin.isBlank()) {
+            return RegisteredCustomerStore.normalizeEmail(emailOrLogin);
+        }
+        String want = emailOrLogin.trim();
+        if (rootDocument != null && rootDocument.users != null) {
+            for (String k : rootDocument.users.keySet()) {
+                if (k != null && k.equalsIgnoreCase(want)) {
+                    return k;
+                }
+            }
+        }
+        for (String k : carts.keySet()) {
+            if (k != null && k.equalsIgnoreCase(want)) {
+                return k;
+            }
+        }
+        for (String k : orders.keySet()) {
+            if (k != null && k.equalsIgnoreCase(want)) {
+                return k;
+            }
+        }
+        return RegisteredCustomerStore.normalizeEmail(emailOrLogin);
+    }
+
     public static ObservableList<CartController.CartItem> getCart(String username) {
         if (username == null || username.isBlank()) {
             return FXCollections.observableArrayList();

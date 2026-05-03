@@ -70,10 +70,11 @@
 
                 <!-- VOUCHER CONTAINER -->
                 <HBox fx:id="voucherContainer" alignment="CENTER_LEFT" spacing="10" style="-fx-background-color: #fff3e0; -fx-border-color: #e67e22; -fx-border-style: dashed; -fx-border-radius: 8; -fx-background-radius: 8; -fx-padding: 15;">
-                    <Label text="🎟️ Nhập mã giảm giá để áp dụng ưu đãi cho đơn hàng" textFill="#d35400">
+                    <Label text="🎟️ Chọn mã giảm giá cho đơn hàng" textFill="#d35400">
                         <font><Font name="System Bold" size="14"/></font>
                     </Label>
-                    <TextField fx:id="txtCouponCode" promptText="VD: WELCOME10" prefWidth="150"/>
+                    <ComboBox fx:id="cbCouponChoice" prefWidth="340" promptText="Chọn mã trong danh sách"/>
+                    <Button fx:id="btnClearCoupon" text="Bỏ mã" style="-fx-background-color: transparent; -fx-text-fill: #c0392b; -fx-underline: true; -fx-cursor: hand;"/>
                     <Region HBox.hgrow="ALWAYS"/>
                     <Button fx:id="btnApplyVoucher" text="Áp dụng" style="-fx-background-color: #e67e22; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;"/>
                 </HBox>

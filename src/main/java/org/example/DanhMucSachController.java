@@ -73,7 +73,9 @@ public class DanhMucSachController {
     }
 
     private void apDungLocVaSapXep() {
-        List<Sach> working = new ArrayList<>(BookCatalog.getAllBooks());
+        List<Sach> working = BookCatalog.getAllBooks().stream()
+                .filter(s -> !s.isDeleted())
+                .collect(Collectors.toCollection(ArrayList::new));
 
         String theLoaiChon = cbTheLoai.getSelectionModel().getSelectedItem();
         if (theLoaiChon != null && !theLoaiChon.isBlank() && !"Tất cả".equals(theLoaiChon)) {

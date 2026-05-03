@@ -46,6 +46,15 @@ public final class BookCatalog {
         return allBooks.add(sach);
     }
 
+    /** Xóa hẳn khỏi danh mục (dùng sau khi xóa vĩnh viễn trong admin). */
+    public static synchronized boolean removeBook(Sach sach) {
+        if (sach == null) return false;
+        getAllBooks();
+        String id = sach.getId();
+        if (id == null || id.isBlank()) return false;
+        return allBooks.removeIf(s -> id.equals(s.getId()));
+    }
+
     /**
      * Match query against title, author, or category (case-insensitive, contains).
      */

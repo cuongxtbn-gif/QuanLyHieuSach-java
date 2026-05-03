@@ -290,8 +290,8 @@ public class AdminQuanLySachController {
     private void xoaVinhVien(Sach sach) {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Xóa vĩnh viễn sách này? Không thể khôi phục!", ButtonType.YES, ButtonType.NO);
         if (alert.showAndWait().orElse(ButtonType.NO) == ButtonType.YES) {
+            BookCatalog.removeBook(sach);
             masterData.remove(sach);
-            // TODO: Xóa trong Database thực tế
             updateFilter();
             updateTrashCount();
         }
@@ -307,14 +307,12 @@ public class AdminQuanLySachController {
         return masterData.stream().filter(this::isDeleted).count();
     }
 
-    // Helper: Tránh lỗi compile nếu class Sach chưa có isDeleted
     private boolean isDeleted(Sach sach) {
-        // Tùy thuộc vào class Sach của bạn. VD: return sach.isDeleted();
-        return false;
+        return sach.isDeleted();
     }
+
     private void setDeleted(Sach sach, boolean deleted) {
-        // sach.setDeleted(deleted);
-        // TODO: Update Database
+        sach.setDeleted(deleted);
     }
 
     // ==========================================
@@ -341,6 +339,7 @@ public class AdminQuanLySachController {
         ComboBox<String> cbLoai = new ComboBox<>(); cbLoai.getItems().addAll("Văn học", "Kỹ năng", "Kinh tế", "Trinh thám", "Tâm lý", "Ngoại ngữ");
         TextField txtNxb = new TextField(); txtNxb.setPromptText("Nhà Xuất Bản");
         TextField txtSoTrang = new TextField(); txtSoTrang.setPromptText("Số trang");
+        TextField txtTonKho = new TextField(); txtTonKho.setPromptText("Số cuốn trong kho");
         TextArea txtMoTa = new TextArea(); txtMoTa.setPromptText("Mô tả"); txtMoTa.setPrefRowCount(3);
         TextField txtAnh = new TextField(); txtAnh.setPromptText("Đường dẫn ảnh (VD: /assets/images/ten-anh.png)");
 
@@ -350,8 +349,9 @@ public class AdminQuanLySachController {
         grid.add(new Label("Số trang (*):"), 2, 2); grid.add(txtSoTrang, 3, 2);
         grid.add(new Label("Thể Loại (*):"), 0, 3); grid.add(cbLoai, 1, 3, 3, 1);
         grid.add(new Label("Nhà XB (*):"), 0, 4); grid.add(txtNxb, 1, 4, 3, 1);
-        grid.add(new Label("Ảnh bìa:"), 0, 5); grid.add(txtAnh, 1, 5, 3, 1);
-        grid.add(new Label("Mô tả:"), 0, 6); grid.add(txtMoTa, 1, 6, 3, 1);
+        grid.add(new Label("Tồn kho:"), 0, 5); grid.add(txtTonKho, 1, 5, 3, 1);
+        grid.add(new Label("Ảnh bìa:"), 0, 6); grid.add(txtAnh, 1, 6, 3, 1);
+        grid.add(new Label("Mô tả:"), 0, 7); grid.add(txtMoTa, 1, 7, 3, 1);
 
         // Đổ dữ liệu nếu là Edit
         if (sachToEdit != null) {
@@ -361,15 +361,18 @@ public class AdminQuanLySachController {
             cbLoai.setValue(sachToEdit.getTheLoai());
             txtNxb.setText(sachToEdit.getNhaXuatBan());
             txtSoTrang.setText(String.valueOf(sachToEdit.getSoTrang()));
+            txtTonKho.setText(String.valueOf(sachToEdit.getTonKho()));
             txtAnh.setText(sachToEdit.getHinhAnh());
             txtMoTa.setText(sachToEdit.getMoTa());
         } else {
             cbLoai.getSelectionModel().selectFirst();
             txtSoTrang.setText("100");
+            txtTonKho.setText("0");
         }
 
         dialog.getDialogPane().setContent(grid);
 
+        final Sach editRef = sachToEdit;
         // Bắt sự kiện khi bấm Lưu
         dialog.setResultConverter(dialogButton -> {
             if (dialogButton == btnTypeLuu) {
@@ -388,8 +391,13 @@ public class AdminQuanLySachController {
 
                     double price = Double.parseDouble(txtGia.getText().trim());
                     int soTrang = Integer.parseInt(txtSoTrang.getText().trim());
+                    int tonKho = Integer.parseInt(txtTonKho.getText() == null || txtTonKho.getText().isBlank() ? "0" : txtTonKho.getText().trim());
                     if (price <= 0 || soTrang <= 0) {
                         new Alert(Alert.AlertType.ERROR, "Giá bán và Số trang phải > 0.").show();
+                        return null;
+                    }
+                    if (tonKho < 0) {
+                        new Alert(Alert.AlertType.ERROR, "Tồn kho không được âm.").show();
                         return null;
                     }
 
@@ -398,10 +406,17 @@ public class AdminQuanLySachController {
                         img = "/assets/images/nha-gia-kim.jpg";
                     }
 
-                    if (sachToEdit != null) {
-                        // Hiện tại class Sach chưa có setter -> coi như màn này chỉ thêm mới.
-                        new Alert(Alert.AlertType.INFORMATION, "Chức năng chỉnh sửa sẽ bổ sung sau. Hiện tại chỉ hỗ trợ thêm mới.").show();
-                        return null;
+                    if (editRef != null) {
+                        editRef.setTenSach(ten);
+                        editRef.setGiaBan(price);
+                        editRef.setHinhAnh(img);
+                        editRef.setTacGia(tacGia);
+                        editRef.setTheLoai(theLoai);
+                        editRef.setNhaXuatBan(nxb);
+                        editRef.setSoTrang(soTrang);
+                        editRef.setMoTa(moTa);
+                        editRef.setTonKho(tonKho);
+                        return editRef;
                     }
 
                     String id = taoIdSachTuTen(ten);
@@ -412,24 +427,27 @@ public class AdminQuanLySachController {
                         id = id + "-" + i;
                     }
 
-                    return new Sach(id, ten, price, img, tacGia, theLoai, nxb, soTrang, moTa);
+                    Sach moi = new Sach(id, ten, price, img, tacGia, theLoai, nxb, soTrang, moTa);
+                    moi.setTonKho(tonKho);
+                    return moi;
                 } catch (NumberFormatException e) {
-                    new Alert(Alert.AlertType.ERROR, "Vui lòng nhập đúng định dạng số cho Giá bán và Số trang.").show();
+                    new Alert(Alert.AlertType.ERROR, "Vui lòng nhập đúng định dạng số cho Giá bán, Số trang và Tồn kho.").show();
                 }
             }
             return null;
         });
 
         dialog.showAndWait().ifPresent(sach -> {
+            if (editRef != null) {
+                tableSach.refresh();
+                updateFilter();
+                return;
+            }
             boolean added = BookCatalog.addBook(sach);
             if (!added) {
                 new Alert(Alert.AlertType.ERROR, "Không thể thêm sách (trùng mã ID hoặc dữ liệu không hợp lệ).").show();
                 return;
             }
-
-            // Cập nhật ngay bảng quản lý sách (admin)
-            // Sách mới thêm mặc định hết hàng, sẽ tăng lên khi nhập kho.
-            sach.setTonKho(0);
             masterData.add(sach);
             updateFilter();
         });

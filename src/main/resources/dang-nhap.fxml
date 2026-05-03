@@ -27,10 +27,10 @@
 
                 <Tab text="TẠO TÀI KHOẢN">
                     <VBox spacing="15" styleClass="auth-body">
-                        <VBox spacing="8"><Label text="Họ và tên" styleClass="form-label"/><TextField promptText="VD: Nguyễn Văn A" styleClass="form-input"/></VBox>
-                        <VBox spacing="8"><Label text="Email" styleClass="form-label"/><TextField promptText="Nhập email" styleClass="form-input"/></VBox>
-                        <VBox spacing="8"><Label text="Mật khẩu" styleClass="form-label"/><PasswordField promptText="Tạo mật khẩu" styleClass="form-input"/></VBox>
-                        <Button text="ĐĂNG KÝ NGAY" styleClass="btn-submit, btn-register"/>
+                        <VBox spacing="8"><Label text="Họ và tên" styleClass="form-label"/><TextField fx:id="txtRegName" promptText="VD: Nguyễn Văn A" styleClass="form-input"/></VBox>
+                        <VBox spacing="8"><Label text="Email" styleClass="form-label"/><TextField fx:id="txtRegEmail" promptText="Nhập email" styleClass="form-input"/></VBox>
+                        <VBox spacing="8"><Label text="Mật khẩu" styleClass="form-label"/><PasswordField fx:id="txtRegPassword" promptText="Tạo mật khẩu" styleClass="form-input"/></VBox>
+                        <Button onAction="#handleRegister" text="ĐĂNG KÝ NGAY" styleClass="btn-submit, btn-register"/>
                     </VBox>
                 </Tab>
             </TabPane>

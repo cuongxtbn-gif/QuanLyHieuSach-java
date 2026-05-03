@@ -13,7 +13,9 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class AdminDonHangController {
@@ -65,22 +67,36 @@ public class AdminDonHangController {
         }
 
         int success = 0;
+        List<String> failures = new ArrayList<>();
         for (PendingOrderRow row : selectedRows) {
             CartController.Order order = row.getOrder();
+            Optional<String> stockErr = OrderStockUtil.validateStockForOrder(order.purchasedItemsProperty().get());
+            if (stockErr.isPresent()) {
+                failures.add(order.orderIdProperty().get() + ": " + stockErr.get());
+                continue;
+            }
             boolean ok = CustomerAccountStore.updateOrderStatus(
                     order.orderIdProperty().get(),
                     order.usernameProperty().get(),
                     "Đã duyệt"
             );
-            if (ok) {
-                order.statusProperty().set("Đã duyệt");
-                success++;
+            if (!ok) {
+                failures.add(order.orderIdProperty().get() + ": không cập nhật được trạng thái.");
+                continue;
             }
+            order.statusProperty().set("Đã duyệt");
+            OrderStockUtil.applyDeductStockForOrder(order.purchasedItemsProperty().get());
+            success++;
         }
 
         refreshTables();
-        if (success > 0) {
+        if (success > 0 && failures.isEmpty()) {
             showAlert(Alert.AlertType.INFORMATION, "Đã duyệt thành công " + success + " đơn hàng.");
+        } else if (success > 0) {
+            showAlert(Alert.AlertType.WARNING,
+                    "Đã duyệt " + success + " đơn.\n\nKhông duyệt được:\n" + String.join("\n", failures));
+        } else if (!failures.isEmpty()) {
+            showAlert(Alert.AlertType.WARNING, "Không duyệt được đơn nào:\n" + String.join("\n", failures));
         } else {
             showAlert(Alert.AlertType.ERROR, "Không thể duyệt các đơn đã chọn.");
         }

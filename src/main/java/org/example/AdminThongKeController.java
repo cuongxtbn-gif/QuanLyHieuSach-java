@@ -123,6 +123,12 @@ public class AdminThongKeController {
             if (parts.length < 2) continue;
 
             String nameAndQty = parts[0].trim();
+            if (nameAndQty.startsWith("[")) {
+                int closeBracket = nameAndQty.indexOf(']');
+                if (closeBracket > 1) {
+                    nameAndQty = nameAndQty.substring(closeBracket + 1).trim();
+                }
+            }
             String amountPart = parts[1].replaceAll("[^0-9]", "");
             double amount = amountPart.isEmpty() ? 0 : Double.parseDouble(amountPart);
             String bookName = nameAndQty.contains(" x") ? nameAndQty.substring(0, nameAndQty.lastIndexOf(" x")).trim() : nameAndQty;

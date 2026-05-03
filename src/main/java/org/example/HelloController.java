@@ -63,7 +63,7 @@ public class HelloController {
         if (flow == null) return;
         flow.getChildren().clear();
         for (String id : ids) {
-            BookCatalog.findById(id).ifPresent(s -> flow.getChildren().add(taoCardSach(s)));
+            BookCatalog.findById(id).filter(s -> !s.isDeleted()).ifPresent(s -> flow.getChildren().add(taoCardSach(s)));
         }
     }
 
