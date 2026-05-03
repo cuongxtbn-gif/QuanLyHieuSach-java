@@ -129,7 +129,13 @@ public class DanhMucSachController {
         btnMua.setStyle("-fx-background-color: #3498db; -fx-text-fill: white; -fx-cursor: hand; -fx-pref-width: 120px;");
 
         // Bấm vào nút Mua ngay hoặc bấm vào Ảnh đều mở trang Chi tiết
-        btnMua.setOnAction(e -> moTrangChiTiet(sach));
+        if (sach.getTonKho() <= 0) {
+            btnMua.setText("Đã hết hàng");
+            btnMua.setDisable(true);
+            btnMua.setStyle("-fx-background-color: #cbd5e1; -fx-text-fill: #334155; -fx-cursor: default; -fx-pref-width: 120px;");
+        } else {
+            btnMua.setOnAction(e -> moTrangChiTiet(sach));
+        }
         imgView.setOnMouseClicked(e -> moTrangChiTiet(sach));
         imgView.setStyle("-fx-cursor: hand;"); // Đổi con trỏ chuột thành hình bàn tay khi di qua ảnh
 

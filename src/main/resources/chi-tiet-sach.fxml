@@ -94,6 +94,9 @@
 
                         <Label text="Thể loại:" GridPane.rowIndex="2" GridPane.columnIndex="0" style="-fx-text-fill: #7f8c8d;"/>
                         <Label fx:id="lblTheLoaiDetail" text="Đang cập nhật" GridPane.rowIndex="2" GridPane.columnIndex="1" style="-fx-font-weight: bold;"/>
+
+                        <Label text="Tồn kho:" GridPane.rowIndex="3" GridPane.columnIndex="0" style="-fx-text-fill: #7f8c8d;"/>
+                        <Label fx:id="lblTonKhoDetail" text="Đang cập nhật" GridPane.rowIndex="3" GridPane.columnIndex="1" style="-fx-font-weight: bold;"/>
                     </GridPane>
                 </VBox>
 

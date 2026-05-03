@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+<?import javafx.geometry.Insets?>
+
+<VBox spacing="20.0" style="-fx-background-color: #f4f7f6; -fx-padding: 30;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.AdminQuanLySachController">
+
+    <!-- Header -->
+    <HBox alignment="CENTER_LEFT" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 4);">
+        <Label text="Quản lý Sách" textFill="#2c3e50">
+            <font><Font name="System Bold" size="24.0" /></font>
+        </Label>
+        <Region HBox.hgrow="ALWAYS" />
+        <Label text="👤 Admin: Quản trị viên tối cao" textFill="#34495e">
+            <font><Font name="System Bold" size="14.0" /></font>
+        </Label>
+    </HBox>
+
+    <!-- Main Content -->
+    <VBox spacing="15.0" style="-fx-background-color: white; -fx-padding: 25; -fx-background-radius: 12; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 5);" VBox.vgrow="ALWAYS">
+
+        <!-- Tiêu đề & Nút Thêm -->
+        <HBox alignment="CENTER_LEFT">
+            <Label fx:id="lblTieuDeBang" text="Kho Sách Của Bạn" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #2c3e50; -fx-border-color: #3498db; -fx-border-width: 0 0 0 4; -fx-padding: 0 0 0 10;"/>
+            <Region HBox.hgrow="ALWAYS" />
+            <Button fx:id="btnThemSach" text="+ Thêm Sách Mới" onAction="#moFormThemSach" style="-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 8 15; -fx-cursor: hand; -fx-background-radius: 6;"/>
+        </HBox>
+
+        <!-- Thanh Tìm kiếm & Lọc -->
+        <HBox spacing="15.0" alignment="CENTER_LEFT" style="-fx-background-color: #f8f9fa; -fx-padding: 15; -fx-border-color: #eee; -fx-border-radius: 8; -fx-background-radius: 8;">
+            <TextField fx:id="txtTimKiem" promptText="🔍 Tìm tên sách hoặc tác giả..." style="-fx-padding: 8;" HBox.hgrow="ALWAYS" />
+            <ComboBox fx:id="cbTheLoai" prefWidth="180.0" promptText="📁 Tất cả thể loại" style="-fx-padding: 4;"/>
+            <ToggleButton fx:id="btnThungRac" text="🗑️ Thùng rác (0)" style="-fx-padding: 8 15; -fx-cursor: hand; -fx-font-weight: bold;"/>
+        </HBox>
+
+        <!-- Bảng Dữ liệu -->
+        <TableView fx:id="tableSach" VBox.vgrow="ALWAYS" styleClass="data-table">
+            <columns>
+                <TableColumn fx:id="colBiaSach" text="Bìa Sách" prefWidth="80.0" style="-fx-alignment: CENTER;" />
+                <TableColumn fx:id="colTenSach" text="Tên Sách" prefWidth="250.0" />
+                <TableColumn fx:id="colTacGia" text="Tác Giả" prefWidth="150.0" />
+                <TableColumn fx:id="colTheLoai" text="Thể Loại" prefWidth="120.0" />
+                <TableColumn fx:id="colGiaBan" text="Giá Bán" prefWidth="120.0" style="-fx-alignment: CENTER-RIGHT;" />
+                <TableColumn fx:id="colTonKho" text="Tồn Kho" prefWidth="100.0" style="-fx-alignment: CENTER;" />
+                <TableColumn fx:id="colHanhDong" text="Hành Động" prefWidth="180.0" style="-fx-alignment: CENTER;" />
+            </columns>
+            <columnResizePolicy>
+                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+            </columnResizePolicy>
+        </TableView>
+
+        <!-- Phân trang -->
+        <Pagination fx:id="pagination" maxPageIndicatorCount="5" pageCount="1"
+                    prefHeight="38.0" minHeight="38.0" maxHeight="38.0" />
+    </VBox>
+</VBox>

@@ -12,20 +12,38 @@ import java.util.stream.Collectors;
  */
 public final class BookCatalog {
 
-    private static List<Sach> allBooks;
+    private static final List<Sach> allBooks = new ArrayList<>();
+    private static boolean initialized = false;
 
     private BookCatalog() {}
 
     public static synchronized List<Sach> getAllBooks() {
-        if (allBooks == null) {
-            allBooks = Collections.unmodifiableList(buildCatalog());
+        if (!initialized) {
+            allBooks.clear();
+            allBooks.addAll(buildCatalog());
+            initialized = true;
         }
-        return allBooks;
+        // Trả view read-only, nhưng backing list vẫn mutable qua addBook/removeBook.
+        return Collections.unmodifiableList(allBooks);
     }
 
     public static Optional<Sach> findById(String id) {
         if (id == null) return Optional.empty();
         return getAllBooks().stream().filter(s -> id.equals(s.getId())).findFirst();
+    }
+
+    /**
+     * Add a new book into catalog at runtime.
+     * @return true if added, false if id already exists
+     */
+    public static synchronized boolean addBook(Sach sach) {
+        if (sach == null) return false;
+        String id = sach.getId();
+        if (id == null || id.isBlank()) return false;
+        // Ensure catalog initialized
+        getAllBooks();
+        if (findById(id).isPresent()) return false;
+        return allBooks.add(sach);
     }
 
     /**
