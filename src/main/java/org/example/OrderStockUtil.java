@@ -51,6 +51,7 @@ public final class OrderStockUtil {
         for (ParsedLine line : lines) {
             resolveBook(line).ifPresent(s -> s.setTonKho(s.getTonKho() - line.qty));
         }
+        BookCatalog.persistNow();
     }
 
     private static List<ParsedLine> parsePurchasedItems(String raw) {

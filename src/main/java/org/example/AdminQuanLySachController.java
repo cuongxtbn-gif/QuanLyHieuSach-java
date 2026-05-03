@@ -276,6 +276,7 @@ public class AdminQuanLySachController {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Chuyển sách '" + sach.getTenSach() + "' vào thùng rác?", ButtonType.YES, ButtonType.NO);
         if (alert.showAndWait().orElse(ButtonType.NO) == ButtonType.YES) {
             setDeleted(sach, true);
+            BookCatalog.persistNow();
             updateFilter();
             updateTrashCount();
         }
@@ -283,6 +284,7 @@ public class AdminQuanLySachController {
 
     private void khuyenPhucSach(Sach sach) {
         setDeleted(sach, false);
+        BookCatalog.persistNow();
         updateFilter();
         updateTrashCount();
     }
@@ -440,6 +442,7 @@ public class AdminQuanLySachController {
         dialog.showAndWait().ifPresent(sach -> {
             if (editRef != null) {
                 tableSach.refresh();
+                BookCatalog.persistNow();
                 updateFilter();
                 return;
             }
