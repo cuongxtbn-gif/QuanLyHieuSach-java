@@ -1,5 +1,14 @@
 package org.example;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
+import java.io.Serializable;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -9,8 +18,14 @@ import java.util.stream.Collectors;
 
 /**
  * Single source of truth for the book catalog (title, author, category search).
+ * Toàn bộ danh mục được lưu vào {@code ~/.quanlyhieusach/book-catalog.ser} để giữ
+ * tồn kho và chỉnh sửa admin sau khi tắt app.
  */
 public final class BookCatalog {
+
+    private static final Path DATA_DIR = Path.of(System.getProperty("user.home"), ".quanlyhieusach");
+    private static final Path DATA_FILE = DATA_DIR.resolve("book-catalog.ser");
+    private static final Path TEMP_FILE = DATA_DIR.resolve("book-catalog.ser.tmp");
 
     private static final List<Sach> allBooks = new ArrayList<>();
     private static boolean initialized = false;
@@ -20,11 +35,24 @@ public final class BookCatalog {
     public static synchronized List<Sach> getAllBooks() {
         if (!initialized) {
             allBooks.clear();
-            allBooks.addAll(buildCatalog());
+            List<Sach> loaded = loadFromDisk();
+            if (loaded != null) {
+                allBooks.addAll(loaded);
+            } else {
+                allBooks.addAll(buildCatalog());
+            }
             initialized = true;
         }
         // Trả view read-only, nhưng backing list vẫn mutable qua addBook/removeBook.
         return Collections.unmodifiableList(allBooks);
+    }
+
+    /** Ghi danh sách sách hiện tại ra đĩa (sau khi sửa trực tiếp đối tượng {@link Sach}, trừ/ cộng kho, v.v.). */
+    public static synchronized void persistNow() {
+        if (!initialized) {
+            return;
+        }
+        persist();
     }
 
     public static Optional<Sach> findById(String id) {
@@ -43,7 +71,11 @@ public final class BookCatalog {
         // Ensure catalog initialized
         getAllBooks();
         if (findById(id).isPresent()) return false;
-        return allBooks.add(sach);
+        if (allBooks.add(sach)) {
+            persist();
+            return true;
+        }
+        return false;
     }
 
     /** Xóa hẳn khỏi danh mục (dùng sau khi xóa vĩnh viễn trong admin). */
@@ -52,7 +84,11 @@ public final class BookCatalog {
         getAllBooks();
         String id = sach.getId();
         if (id == null || id.isBlank()) return false;
-        return allBooks.removeIf(s -> id.equals(s.getId()));
+        boolean removed = allBooks.removeIf(s -> id.equals(s.getId()));
+        if (removed) {
+            persist();
+        }
+        return removed;
     }
 
     /**
@@ -72,6 +108,89 @@ public final class BookCatalog {
 
     private static boolean contains(String value, String q) {
         return value != null && value.toLowerCase(Locale.ROOT).contains(q);
+    }
+
+    private static void persist() {
+        try {
+            ArrayList<BookRecord> records = new ArrayList<>(allBooks.size());
+            for (Sach s : allBooks) {
+                records.add(BookRecord.from(s));
+            }
+            Files.createDirectories(DATA_DIR);
+            try (OutputStream out = Files.newOutputStream(TEMP_FILE);
+                 ObjectOutputStream oos = new ObjectOutputStream(out)) {
+                oos.writeObject(records);
+            }
+            try {
+                Files.move(TEMP_FILE, DATA_FILE, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
+            } catch (IOException ignored) {
+                Files.move(TEMP_FILE, DATA_FILE, StandardCopyOption.REPLACE_EXISTING);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * @return danh sách đã lưu; {@code null} nếu chưa có file hoặc lỗi đọc (dùng danh mục mặc định trong code).
+     */
+    private static List<Sach> loadFromDisk() {
+        if (!Files.isRegularFile(DATA_FILE)) {
+            return null;
+        }
+        try (InputStream in = Files.newInputStream(DATA_FILE);
+             ObjectInputStream ois = new ObjectInputStream(in)) {
+            Object o = ois.readObject();
+            if (o instanceof ArrayList<?> raw) {
+                ArrayList<Sach> out = new ArrayList<>();
+                for (Object item : raw) {
+                    if (item instanceof BookRecord br) {
+                        out.add(br.toSach());
+                    }
+                }
+                return out;
+            }
+        } catch (ClassNotFoundException | IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private static final class BookRecord implements Serializable {
+        private static final long serialVersionUID = 1L;
+        String id;
+        String tenSach;
+        double giaBan;
+        String hinhAnh;
+        String tacGia;
+        String theLoai;
+        String nhaXuatBan;
+        int soTrang;
+        String moTa;
+        int tonKho;
+        boolean deleted;
+
+        static BookRecord from(Sach s) {
+            BookRecord r = new BookRecord();
+            r.id = s.getId();
+            r.tenSach = s.getTenSach();
+            r.giaBan = s.getGiaBan();
+            r.hinhAnh = s.getHinhAnh();
+            r.tacGia = s.getTacGia();
+            r.theLoai = s.getTheLoai();
+            r.nhaXuatBan = s.getNhaXuatBan();
+            r.soTrang = s.getSoTrang();
+            r.moTa = s.getMoTa();
+            r.tonKho = s.getTonKho();
+            r.deleted = s.isDeleted();
+            return r;
+        }
+
+        Sach toSach() {
+            Sach s = new Sach(id, tenSach, giaBan, hinhAnh, tacGia, theLoai, nhaXuatBan, soTrang, moTa, tonKho);
+            s.setDeleted(deleted);
+            return s;
+        }
     }
 
     private static List<Sach> buildCatalog() {
